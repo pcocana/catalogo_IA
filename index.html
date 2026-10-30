@@ -1,0 +1,1896 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catálogo con asistente</title>
+<style>
+:root{
+  --bg:#f5f0e6; --surface:#fffdf8; --ink:#241f19; --muted:#6a6155; --line:#e2d8c6;
+  --accent:#1f5f4a; --accent-ink:#ffffff; --accent-soft:#dcebe3;
+  --warn:#8a5200; --warn-soft:#fbeccd; --bad:#9b2c2c; --bad-soft:#f6dcdc; --chip:#eee6d4;
+  --shadow:0 1px 2px rgba(60,40,10,.06),0 4px 14px rgba(60,40,10,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#15130e; --surface:#1e1b15; --ink:#efe9dc; --muted:#a79e8c;
+    --line:#383227; --accent:#6fc3a0; --accent-ink:#0d1a13; --accent-soft:#1c3329;
+    --warn:#e9b560; --warn-soft:#3a2d12; --bad:#e59a9a; --bad-soft:#3d1f1f; --chip:#2a251c;
+    --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.25;margin:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.top{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:18px 16px;max-width:1200px;margin:0 auto}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:42px;height:42px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 22px Georgia,serif}
+.brand h1{font-size:1.35rem}
+.brand p{margin:0;color:var(--muted);font-size:.9rem}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:10px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary,.primary{background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);border-radius:10px;padding:10px 18px;font-weight:600}
+main{max-width:1200px;margin:0 auto;padding:0 16px 48px}
+.loader{border:2px dashed var(--line);border-radius:16px;background:var(--surface);padding:40px 20px;text-align:center;box-shadow:var(--shadow)}
+.loader.drag{border-color:var(--accent);background:var(--accent-soft)}
+.loader h2{font-size:1.4rem;margin-bottom:8px}
+.loader p{color:var(--muted);margin:6px auto;max-width:620px}
+.loader .primary{margin-top:14px}
+.err{margin-top:14px;color:var(--bad);background:var(--bad-soft);padding:10px 14px;border-radius:10px;display:inline-block;text-align:left}
+.summary{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:.92rem;margin:0 0 12px}
+.summary b{color:var(--ink)}
+details.cols{margin:0 0 14px;font-size:.88rem;color:var(--muted)}
+details.cols summary{cursor:pointer}
+details.cols ul{margin:6px 0 0;padding-left:18px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.tabs button{background:none;border:none;padding:10px 18px;border-bottom:3px solid transparent;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.searchbar{display:flex;gap:8px}
+.searchbar input,.askform input[type=text]{flex:1;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:1.05rem}
+.related{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;align-items:center;font-size:.9rem;color:var(--muted)}
+.chip{border:1px solid var(--line);background:var(--chip);border-radius:999px;padding:3px 11px;font-size:.85rem}
+button.chip:hover{border-color:var(--accent);color:var(--accent)}
+.layout{display:grid;grid-template-columns:270px 1fr;gap:20px;margin-top:16px;align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:1fr}}
+.filters{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.filters summary{font-weight:700;cursor:pointer}
+.fgroup{margin-top:14px}
+.fgroup h3{font:700 .78rem system-ui;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.fgroup label{display:flex;gap:8px;align-items:baseline;padding:2px 0;font-size:.93rem}
+.fgroup label span.n{margin-left:auto;color:var(--muted);font-size:.82rem}
+.fgroup select,.fgroup input[type=number]{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.years{display:flex;gap:8px}
+.more-link{background:none;border:none;color:var(--accent);padding:4px 0;font-size:.88rem;text-decoration:underline}
+.resbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.resbar .count{font-weight:700}
+.resctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.92rem}
+.resctl select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.note{background:var(--warn-soft);color:var(--warn);padding:8px 12px;border-radius:10px;margin-bottom:10px;font-size:.92rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.card h3{font-size:1.08rem;margin-bottom:2px}
+.card .meta{color:var(--muted);font-size:.92rem}
+.card .row{display:flex;gap:6px 8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.sig{font:600 .85rem ui-monospace,Menlo,Consolas,monospace;background:var(--chip);border:1px solid var(--line);border-radius:7px;padding:2px 8px}
+button.sig:hover{border-color:var(--accent)}
+.pill{font-size:.82rem;border-radius:999px;padding:2px 10px;background:var(--chip);border:1px solid var(--line)}
+.pill.ok{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:600}
+.pill.warn{background:var(--warn-soft);border-color:transparent;color:var(--warn);font-weight:600}
+.tag{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;background:var(--ink);color:var(--bg);border-radius:6px;padding:1px 7px}
+.topic{font-size:.85rem;color:var(--muted)}
+.why{margin:8px 0 0;font-size:.88rem;color:var(--muted)}
+.rank{float:left;margin:0 12px 0 0;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700}
+.items summary{cursor:pointer;font-size:.88rem;color:var(--accent);margin-top:8px}
+.items ul{margin:6px 0 0;padding-left:18px;font-size:.86rem;color:var(--muted)}
+.chat{display:flex;flex-direction:column;gap:12px;margin-bottom:14px;min-height:120px}
+.msg{max-width:min(760px,100%);padding:12px 16px;border-radius:14px}
+.msg.user{align-self:flex-end;background:var(--accent);color:var(--accent-ink)}
+.msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line)}
+.msg.bot .card{box-shadow:none;margin:10px 0 0;background:var(--bg)}
+.askform{display:flex;gap:8px;position:sticky;bottom:0;background:var(--bg);padding:8px 0}
+.askopts{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 4px;font-size:.9rem;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.foot{color:var(--muted);font-size:.84rem;margin-top:26px}
+.srcs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+.src{display:inline-flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 6px 3px 12px;font-size:.86rem}
+.src .x{border:none;background:var(--chip);border-radius:50%;width:24px;height:24px;line-height:1;font-size:1rem;color:var(--muted)}
+.src .x:hover{color:var(--bad)}
+.libname{width:130px;padding:3px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:.84rem}
+.pf{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 4px}
+.pflabel{font-size:.86rem;color:var(--muted);margin-right:4px}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.note{margin-top:14px;padding:10px 14px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:inline-block;text-align:left}
+.row.prog{align-items:center;margin-top:6px}
+.src.prog{border-style:dashed}
+h3.step{font:700 .95rem Georgia,serif;margin:12px 0 -4px;color:var(--accent)}
+.msg ul{margin:6px 0;padding-left:20px}
+.msg .chips{margin-top:10px}
+.xl{margin:8px 0 0;font-size:.9rem;color:var(--muted)}
+.msg.typing{display:flex;gap:5px;align-items:center;padding:14px 16px}
+.msg.typing span{width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.5;animation:blink 1s infinite}
+.msg.typing span:nth-child(2){animation-delay:.2s}
+.msg.typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.msg.typing span{animation:none}}
+.empty{padding:26px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">§</div>
+    <div>
+      <h1 id="appTitle">Catálogo con asistente</h1>
+      <p id="subtitle">Carga el informe de tu colección (CSV) para comenzar</p>
+    </div>
+  </div>
+  <div class="top-actions" id="topActions" hidden>
+    <button class="btn" id="btnAdd" type="button">Agregar archivo</button>
+    <button class="btn" id="btnJson" type="button">Exportar catálogo (JSON)</button>
+  </div>
+</header>
+
+<main>
+  <section id="loader" class="loader" aria-labelledby="loaderTitle">
+    <h2 id="loaderTitle">Carga el catálogo</h2>
+    <p>Arrastra aquí uno o varios archivos CSV exportados desde Koha, o selecciónalos. Se leen <b>solo en tu navegador</b>: no se suben a ningún servidor. Puedes seguir agregando archivos de otras bibliotecas después: se suman y los títulos repetidos se unen en una sola ficha.</p>
+    <p>Reconoce automáticamente separador (; , tab), codificación y columnas como título, autor, año/copyright, ISBN, clasificación, descriptores/materias, estado, ejemplares o conteo de ítems.</p>
+    <p><b>Opcional:</b> carga también la <b>bibliografía de los programas de asignatura</b> (CSV con asignatura, tipo de bibliografía obligatoria/complementaria y título). El asistente la consulta primero y prioriza la bibliografía obligatoria. Funciona con el mismo botón. <button class="btn" type="button" data-tpl="1">Descargar plantilla (CSV)</button></p>
+    <button class="primary" id="btnPick" type="button">Elegir uno o varios archivos CSV</button>
+    <input type="file" id="file" accept=".csv,.txt,text/csv" multiple hidden>
+    <div id="loadError" class="err" role="alert" hidden></div>
+    <div id="progInfo" class="note" role="status" hidden></div>
+  </section>
+
+  <section id="app" hidden>
+    <div class="summary" id="summary"></div>
+    <div class="srcs" id="srcStrip"></div>
+    <div id="srcError" class="err" role="alert" hidden></div>
+    <details class="cols" id="progBox" hidden><summary>Revisar el cruce con la bibliografía de programas</summary><div id="progRep"></div></details>
+    <details class="cols" id="colsBox"><summary>Columnas detectadas en el archivo</summary><ul id="colsList"></ul></details>
+
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabSearch" aria-selected="true" aria-controls="paneSearch" type="button">Buscador</button>
+      <button role="tab" id="tabAsk" aria-selected="false" aria-controls="paneAsk" type="button">Asistente</button>
+    </div>
+
+    <div id="paneSearch" role="tabpanel" aria-labelledby="tabSearch">
+      <form class="searchbar" id="searchForm" role="search">
+        <input id="q" type="search" autocomplete="off" aria-label="Buscar en el catálogo" placeholder="Título, autor, tema, ISBN o signatura (ej. 515.35)">
+        <button class="primary" type="submit">Buscar</button>
+      </form>
+      <div class="xl"><label><input type="checkbox" id="xlang" checked> Incluir equivalentes en inglés/español <span class="topic">(«teoría de nudos» también encuentra «knot theory»)</span></label></div>
+      <div class="related" id="related"></div>
+      <div class="layout">
+        <aside class="filters">
+          <details open id="filtersBox">
+            <summary>Filtros</summary>
+            <div class="fgroup" id="gAvail"><label><input type="checkbox" id="fAvail"> Solo con ejemplares disponibles</label></div>
+            <div class="fgroup" id="gLib" hidden><h3>Biblioteca</h3><div id="fLibs"></div></div>
+            <div class="fgroup"><h3>Idioma del título</h3><div id="fLangs"></div></div>
+            <div class="fgroup"><h3>Clase Dewey</h3><div id="fDewey"></div></div>
+            <div class="fgroup"><h3>Tipo de recurso</h3><div id="fTypes"></div></div>
+            <div class="fgroup" id="gColl"><h3>Colección</h3><select id="fColl" aria-label="Colección"></select></div>
+            <div class="fgroup" id="gYear"><h3>Año</h3><div class="years"><input type="number" id="yFrom" placeholder="Desde" aria-label="Año desde"><input type="number" id="yTo" placeholder="Hasta" aria-label="Año hasta"></div></div>
+            <div class="fgroup"><button class="btn" type="button" id="btnClear">Limpiar filtros</button></div>
+          </details>
+        </aside>
+        <section class="results" aria-label="Resultados">
+          <div class="resbar">
+            <div class="count" id="count" aria-live="polite"></div>
+            <div class="resctl">
+              <label>Ordenar
+                <select id="sort">
+                  <option value="rel">Relevancia</option>
+                  <option value="titulo">Título A–Z</option>
+                  <option value="ano-desc">Año (más reciente)</option>
+                  <option value="ano-asc">Año (más antiguo)</option>
+                  <option value="sig">Signatura</option>
+                </select>
+              </label>
+              <button class="btn" type="button" id="btnCsv">Descargar resultados (CSV)</button>
+            </div>
+          </div>
+          <div id="note" class="note" hidden></div>
+          <div id="list"></div>
+          <button class="btn" id="btnMore" type="button" hidden>Mostrar más</button>
+        </section>
+      </div>
+    </div>
+
+    <div id="paneAsk" role="tabpanel" aria-labelledby="tabAsk" hidden>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <form class="askform" id="askForm">
+        <input type="text" id="askInput" autocomplete="off" aria-label="Qué quieres estudiar" placeholder="Cuéntame qué quieres estudiar…">
+        <button class="primary" type="submit">Preguntar</button>
+      </form>
+      <div class="pf" id="agentProfile" role="group" aria-label="Preferencias del asistente"></div>
+    </div>
+
+    <p class="foot">Las cifras de “ejemplares” y “en estantería” corresponden al momento en que se exportó el archivo. El asistente recomienda solo títulos presentes en el archivo cargado y estima el nivel a partir del título: es orientativo, no una evaluación.</p>
+  </section>
+</main>
+
+<script>
+"use strict";
+/* ============ Utilidades de texto ============ */
+const $ = s => document.querySelector(s);
+const norm = s => (s == null ? "" : String(s)).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const stem = w => (w.length > 4 ? w.replace(/(es|s)$/, "") : w);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const plural = (n, a, b) => n + " " + (n === 1 ? a : b);
+const fmt = n => n.toLocaleString("es-CL");
+
+/* ============ Dewey ============ */
+const DEWEY3 = {
+  "000":"Generalidades","001":"Conocimiento","003":"Sistemas","004":"Ciencias de la computación","005":"Programación de computadores",
+  "150":"Psicología","153":"Procesos mentales","330":"Economía","370":"Educación","371":"Métodos de enseñanza","372":"Educación básica",
+  "378":"Educación superior","428":"Inglés (uso)","501":"Filosofía de la ciencia","510":"Matemáticas (general)",
+  "511":"Matemática discreta y lógica","512":"Álgebra","513":"Aritmética","514":"Topología","515":"Análisis y cálculo","516":"Geometría",
+  "519":"Probabilidades y matemática aplicada","530":"Física","570":"Biología","577":"Ecología","620":"Ingeniería","658":"Gestión","793":"Juegos"
+};
+const DEWEY_SUB = {
+  "512.5":"Álgebra lineal","512.7":"Teoría de números","515.35":"Ecuaciones diferenciales","515.7":"Análisis funcional",
+  "515.9":"Funciones de variable compleja","519.2":"Probabilidades","519.5":"Estadística matemática"
+};
+const DEWEY_MAIN = {"0":"Generalidades","1":"Filosofía y psicología","2":"Religión","3":"Ciencias sociales","4":"Lenguas","5":"Ciencias puras","6":"Tecnología","7":"Artes y recreación","8":"Literatura","9":"Historia y geografía"};
+const parseDewey = c => { const m = String(c).match(/^\s*(\d{3}(?:\.\d+)?)/); return m ? m[1] : ""; };
+function deweyLabel(d) {
+  if (!d) return "Sin clasificación Dewey";
+  let best = "";
+  for (const k of Object.keys(DEWEY_SUB)) if (d.startsWith(k) && k.length > best.length) best = k;
+  if (best) return DEWEY_SUB[best];
+  const c3 = d.slice(0, 3);
+  return DEWEY3[c3] || DEWEY_MAIN[c3[0]] || "Otras";
+}
+
+/* ============ Conceptos temáticos (editable) ============ */
+const CONCEPTS_RAW = [
+  { label:"Cálculo y análisis", dewey:["515"], terms:["calculo","derivada","derivadas","integral","integrales","limite","limites","analisis matematico","calculo diferencial","calculo integral","calculo vectorial","varias variables","series","sucesiones","fourier","series de fourier","transformada de fourier","analisis armonico","calculus","derivative","derivatives","limits","sequences","fourier series","fourier analysis","harmonic analysis","vector calculus","multivariable calculus","mathematical analysis"] },
+  { label:"Ecuaciones diferenciales", dewey:["515.35","515.3"], terms:["ecuaciones diferenciales","ecuacion diferencial","edo","edp","derivadas parciales","laplace","transformada de laplace","modelos dinamicos","differential equations","differential equation","ordinary differential equations","partial differential equations","pde","ode","laplace transform"] },
+  { label:"Variable compleja", dewey:["515.9"], terms:["variable compleja","funciones complejas","analisis complejo","numeros complejos","complex variable","complex analysis","complex functions","complex numbers"] },
+  { label:"Análisis real y funcional", dewey:["515.7","515"], terms:["analisis real","analisis funcional","medida","lebesgue","espacios de hilbert","espacios de banach","funciones reales","real analysis","functional analysis","measure theory","hilbert spaces","banach spaces","measure and integration"] },
+  { label:"Álgebra lineal", dewey:["512.5","512"], terms:["algebra lineal","matriz","matrices","vectores","espacios vectoriales","determinantes","autovalores","valores propios","transformaciones lineales","sistemas lineales","linear algebra","matrix","vector spaces","determinants","eigenvalues","linear transformations","linear systems"] },
+  { label:"Álgebra", dewey:["512"], terms:["algebra","polinomios","grupos","anillos","cuerpos","algebra abstracta","algebra moderna","estructuras algebraicas","ecuaciones","teoria de grupos","teoria de galois","polynomials","groups","rings","abstract algebra","modern algebra","algebraic structures","galois theory","group theory"] },
+  { label:"Teoría de números y aritmética", dewey:["512.7","513"], terms:["teoria de numeros","numeros primos","aritmetica","congruencias","criptografia","number theory","prime numbers","arithmetic","congruences","cryptography"] },
+  { label:"Geometría", dewey:["516"], terms:["geometria","geometria analitica","geometria diferencial","geometria algebraica","trigonometria","euclidiana","proyectiva","triangulos","conicas","geometry","analytic geometry","differential geometry","algebraic geometry","trigonometry","euclidean","projective","triangles","conics"] },
+  { label:"Topología y teoría de nudos", dewey:["514"], terms:["topologia","espacios metricos","espacios topologicos","conexidad","compacidad","nudos","teoria de nudos","trenzas","homologia","homotopia","variedades","topology","metric spaces","topological spaces","knot theory","knots","braids","homology","homotopy","manifolds","algebraic topology","differential topology"] },
+  { label:"Probabilidad y estadística", dewey:["519.2","519.5","519"], terms:["probabilidad","probabilidades","estadistica","azar","variables aleatorias","distribucion","distribuciones","inferencia","procesos estocasticos","regresion","muestreo","bayes","probability","statistics","statistical","random variables","distribution","distributions","inference","stochastic processes","regression","sampling","bayesian","markov chains"] },
+  { label:"Matemática discreta y lógica", dewey:["511"], terms:["matematica discreta","matematicas discretas","logica","conjuntos","combinatoria","grafos","teoria de grafos","teoria de conjuntos","induccion","demostraciones","recurrencias","discrete mathematics","logic","set theory","combinatorics","graph theory","induction","proofs","recurrences","mathematical logic"] },
+  { label:"Métodos numéricos y optimización", dewey:["519","658.403"], terms:["metodos numericos","analisis numerico","optimizacion","programacion lineal","investigacion de operaciones","simulacion","interpolacion","aproximacion","numerical methods","numerical analysis","optimization","linear programming","operations research","simulation","interpolation","approximation"] },
+  { label:"Didáctica de la matemática", dewey:["371","372","510"], terms:["didactica","ensenanza","educacion matematica","aprendizaje","pedagogia","curriculum","resolucion de problemas","docente","didactics","teaching","mathematics education","learning","pedagogy","problem solving","teacher"] },
+  { label:"Física", dewey:["530"], terms:["fisica","mecanica","electromagnetismo","relatividad","termodinamica","cuantica","physics","mechanics","electromagnetism","relativity","thermodynamics","quantum"] },
+  { label:"Computación y programación", dewey:["004","005"], terms:["programacion","computacion","algoritmos","python","matlab","software","informatica","inteligencia artificial","programming","computing","computation","algorithms","computer science","artificial intelligence"] },
+  { label:"Historia y cultura matemática", dewey:["510"], terms:["historia de la matematica","biografia","filosofia de la matematica","divulgacion","history of mathematics","biography","philosophy of mathematics","popular mathematics"] }
+];
+const CONCEPTS = CONCEPTS_RAW.map(c => ({ ...c, tNorm: c.terms.map(t => norm(t).split(" ").map(stem).join(" ")) }));
+function matchConcepts(qn) {
+  const qs = " " + qn.split(" ").map(stem).join(" ") + " ";
+  return CONCEPTS.filter(c => c.tNorm.some(t => qs.includes(" " + t + " ")));
+}
+
+/* ============ Glosario español ↔ inglés (editable) ============ */
+const XL = { on: true };
+const GLOSS_PAIRS = [
+  "teoria|teorias=theory|theories", "nudo|nudos=knot|knots", "enlace|enlaces=link|links", "trenza|trenzas=braid|braids",
+  "ecuacion|ecuaciones=equation|equations", "diferencial|diferenciales=differential", "derivada|derivadas|derivacion=derivative|derivatives|differentiation",
+  "calculo=calculus", "limite|limites=limit|limits", "sucesion|sucesiones=sequence|sequences", "funcion|funciones=function|functions",
+  "complejo|compleja|complejos|complejas=complex", "matriz|matrices=matrix|matrices", "espacio|espacios=space|spaces",
+  "topologia=topology", "topologico|topologica=topological", "geometria=geometry", "geometrico|geometrica=geometric",
+  "analitico|analitica=analytic|analytical", "proyectivo|proyectiva=projective", "algebraico|algebraica=algebraic",
+  "superficie|superficies=surface|surfaces", "curva|curvas=curve|curves", "variedad|variedades=manifold|manifolds",
+  "grupo|grupos=group|groups", "anillo|anillos=ring|rings", "cuerpo|cuerpos|campo|campos=field|fields", "modulo|modulos=module|modules",
+  "numero|numeros=number|numbers", "primo|primos=prime|primes", "entero|enteros=integer|integers", "racional|racionales=rational",
+  "probabilidad|probabilidades=probability|probabilities", "estadistica|estadistico|estadisticas=statistics|statistical",
+  "estocastico|estocastica|estocasticos=stochastic", "aleatorio|aleatoria|aleatorios|aleatorias=random",
+  "distribucion|distribuciones=distribution|distributions", "muestreo=sampling", "regresion=regression", "inferencia=inference",
+  "hipotesis=hypothesis|hypotheses", "bayesiano|bayesiana=bayesian", "cadena|cadenas=chain|chains", "proceso|procesos=process|processes",
+  "optimizacion=optimization|optimisation", "programacion=programming", "operaciones=operations", "investigacion=research",
+  "metodo|metodos=method|methods", "numerico|numerica|numericos|numericas=numerical", "analisis=analysis", "aproximacion=approximation",
+  "interpolacion=interpolation", "simulacion=simulation", "grafo|grafos=graph|graphs", "combinatoria|combinatorio=combinatorics|combinatorial",
+  "discreto|discreta|discretos|discretas=discrete", "logica=logic", "conjunto|conjuntos=set|sets",
+  "demostracion|demostraciones|prueba|pruebas=proof|proofs", "induccion=induction", "recurrencia|recurrencias=recurrence|recurrences",
+  "teorema|teoremas=theorem|theorems", "axioma|axiomas=axiom|axioms", "fundamento|fundamentos=foundation|foundations",
+  "introduccion=introduction", "elemental|elementales=elementary", "avanzado|avanzada|avanzados=advanced", "basico|basica|basicos=basic",
+  "curso|cursos=course|courses", "problema|problemas=problem|problems", "ejercicio|ejercicios=exercise|exercises",
+  "solucion|soluciones=solution|solutions", "aplicacion|aplicaciones=application|applications", "aplicado|aplicada|aplicados=applied",
+  "moderno|moderna|modernos=modern", "clasico|clasica|clasicos=classical|classic", "historia=history", "filosofia=philosophy",
+  "ensenanza=teaching", "aprendizaje=learning", "educacion=education", "modelo|modelos=model|models", "modelado|modelacion=modeling|modelling",
+  "sistema|sistemas=system|systems", "dinamico|dinamica|dinamicos=dynamical|dynamic|dynamics", "caos=chaos", "onda|ondas=wave|waves",
+  "transformada|transformadas=transform|transforms", "armonico|armonica=harmonic", "medida=measure", "integracion=integration",
+  "funcional|funcionales=functional", "operador|operadores=operator|operators", "espectral=spectral", "relatividad=relativity",
+  "mecanica=mechanics", "cuantica|cuantico=quantum", "fisica=physics", "termodinamica=thermodynamics",
+  "computacion|computadores|computadoras=computing|computation|computers", "algoritmo|algoritmos=algorithm|algorithms", "criptografia=cryptography",
+  "codigo|codigos=code|codes|coding", "informacion=information", "juego|juegos=game|games", "categoria|categorias=category|categories",
+  "homologia=homology", "homotopia=homotopy", "invariante|invariantes=invariant|invariants", "polinomio|polinomios=polynomial|polynomials",
+  "raiz|raices=root|roots", "trigonometria=trigonometry", "triangulo|triangulos=triangle|triangles", "circulo|circulos=circle|circles",
+  "esfera|esferas=sphere|spheres", "conica|conicas=conic|conics", "plano|planos=plane|planes", "angulo|angulos=angle|angles",
+  "volumen=volume", "simetria|simetrias=symmetry|symmetries", "permutacion|permutaciones=permutation|permutations",
+  "arbol|arboles=tree|trees", "red|redes=network|networks", "flujo|flujos=flow|flows", "finanzas=finance", "economia=economics|economy",
+  "matematica|matematicas=mathematics|mathematical|math", "tesis=thesis|theses", "libro|libros=book|books", "manual|manuales=handbook|manual",
+  "diccionario=dictionary", "tratado=treatise", "leccion|lecciones=lecture|lectures|lesson|lessons", "apuntes=notes",
+  "estructura|estructuras=structure|structures", "forma|formas=form|forms", "ley|leyes=law|laws", "principio|principios=principle|principles",
+  "lineal|lineales=linear", "variacional=variational", "senal|senales=signal|signals", "procesamiento=processing", "datos=data",
+  "mineria=mining", "inteligencia=intelligence", "ciencia|ciencias=science|sciences", "ingenieria=engineering",
+  "ingeniero|ingenieros=engineer|engineers", "cientifico|cientifica=scientific", "estudiante|estudiantes=student|students",
+  "docente|docentes|profesor|profesores=teacher|teachers|professor|professors", "escuela=school", "primaria=primary|elementary",
+  "universidad|universitario=university|college", "guia=guide", "medicion=measurement"
+];
+const ES2EN = new Map(), EN2ES = new Map(), GL_ES_ONLY = new Set(), GL_EN_ONLY = new Set();
+(function buildGloss() {
+  const side = s => s.split("|").map(w => stem(norm(w)));
+  const add = (m, k, vals) => { let s = m.get(k); if (!s) { s = new Set(); m.set(k, s); } vals.forEach(v => s.add(v)); };
+  const allEs = new Set(), allEn = new Set();
+  for (const p of GLOSS_PAIRS) {
+    const [es, en] = p.split("=").map(side);
+    es.forEach(e => { add(ES2EN, e, en); allEs.add(e); });
+    en.forEach(n => { add(EN2ES, n, es); allEn.add(n); });
+  }
+  allEs.forEach(w => { if (!allEn.has(w)) GL_ES_ONLY.add(w); });
+  allEn.forEach(w => { if (!allEs.has(w)) GL_EN_ONLY.add(w); });
+})();
+/* Equivalentes de cada término de la consulta (ambos sentidos). Los equivalentes cortos se buscan como palabra exacta. */
+function expandTokens(origs, toks) {
+  return toks.map(tk => {
+    const out = new Set();
+    for (const m of [ES2EN, EN2ES]) { const v = m.get(tk); if (v) v.forEach(a => { if (a !== tk) out.add(a); }); }
+    return [...out].map(a => ({ t: a, exact: a.length <= 4 }));
+  });
+}
+const expLabel = (origs, alts) => origs.map((o, i) => alts[i] && alts[i].length ? o + " → " + alts[i].slice(0, 2).map(a => a.t).join("/") : null).filter(Boolean);
+
+/* ============ CSV ============ */
+function parseCSV(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const nl = text.indexOf("\n");
+  const head = text.slice(0, nl < 0 ? text.length : nl);
+  const cnt = { ";": 0, ",": 0, "\t": 0, "|": 0 };
+  let q = false;
+  for (const ch of head) { if (ch === '"') q = !q; else if (!q && ch in cnt) cnt[ch]++; }
+  const delim = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
+  const rows = []; let row = [], f = "", inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQ) {
+      if (ch === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else inQ = false; }
+      else f += ch;
+    } else if (ch === '"' && f === "") inQ = true;
+    else if (ch === delim) { row.push(f); f = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(f); f = ""; rows.push(row); row = []; }
+    else f += ch;
+  }
+  if (f !== "" || row.length) { row.push(f); rows.push(row); }
+  return rows;
+}
+
+const ALIAS = {
+  id:["identificador del registro","biblionumber","identificador","id registro","numero de registro","n registro"],
+  title:["titulo extendido","titulo","title"],
+  author:["autor","autores","author"],
+  year:["ed ano","ano","copyright","copyrightdate","copyright date","ano de publicacion","fecha","publicationyear"],
+  isbn:["isbn"],
+  copies:["ejemplares","conteo de item","conteo de items","conteo de ejemplares","items","n items","numero de items","numero de ejemplares","cantidad","count"],
+  callno:["n clasificacion","clasificacion","signatura","itemcallnumber","call number","clasificacion dewey","dewey","numero de clasificacion"],
+  subjects:["materias","descriptores tematicos","descriptores","temas","materia","subjects","encabezamientos de materia","palabras clave"],
+  status:["estado","status","disponibilidad"],
+  type:["tipo de recurso","tipo de item","tipo de material","itemtype","tipo"],
+  collection:["coleccion","collection"],
+  place:["espacio estanteria o acceso","ubicacion","estanteria","location","espacio"],
+  barcode:["inventario codigo de barras","codigo de barras","barcode","inventario"],
+  publisher:["pie imprenta","editorial","publisher","pie de imprenta"],
+  unit:["unidad academica"]
+};
+const FIELD_NAME = { id:"Identificador", title:"Título", author:"Autor", year:"Año / copyright", isbn:"ISBN", copies:"Ejemplares (conteo)", callno:"Clasificación / signatura", subjects:"Descriptores / materias", status:"Estado", type:"Tipo de recurso", collection:"Colección", place:"Ubicación", barcode:"Código de barras", publisher:"Editorial", unit:"Unidad académica" };
+function mapColumns(hdr) {
+  const hn = hdr.map(norm), map = {}, used = new Set();
+  for (const f of Object.keys(ALIAS)) {
+    for (const a of ALIAS[f]) { const i = hn.findIndex((h, k) => !used.has(k) && h === a); if (i >= 0) { map[f] = i; used.add(i); break; } }
+  }
+  for (const f of Object.keys(ALIAS)) {
+    if (map[f] != null) continue;
+    outer: for (const a of ALIAS[f]) {
+      if (a.length < 5) continue;
+      const i = hn.findIndex((h, k) => !used.has(k) && h.includes(a));
+      if (i >= 0) { map[f] = i; used.add(i); break outer; }
+    }
+  }
+  return map;
+}
+
+/* ============ Construcción de datos ============ */
+let DATA = null;
+const SOURCES = [];
+let AUTO_INFO = "";
+ALIAS.lib = ["biblioteca", "sede", "sucursal", "branch", "homebranch"];
+ALIAS.availN = ["disponibles", "ejemplares disponibles", "n disponibles", "disponibles en estanteria"];
+ALIAS.author.unshift("autor es", "autores es");
+FIELD_NAME.availN = "Disponibles (conteo)";
+FIELD_NAME.lib = "Biblioteca";
+const NON_BIBLIO = /calculadora|notebook|laptop|ludico|juego|equipo|tablet/;
+const NON_BIBLIO_TITLE = /\b(kit|impresora|impresoras|calculadora|notebook|laptop|tablet|lentes|robot|dron)\b/;
+/* año: de su columna; si el informe no la trae, del último año de la signatura (ej. 515.35 AYR 1969) */
+const yearFromCallno = c => { const m = [...String(c).matchAll(/(?:^|\s)(1[5-9]\d\d|20\d\d)(?=\s|$|\)|,)/g)]; return m.length ? +m[m.length - 1][1] : null; };
+const yearOf = (g, map) => { const y = parseYear(g("year")); return y != null ? y : (map.year == null ? yearFromCallno(g("callno")) : null); };
+const cleanTitle = t => t.replace(/\s+/g, " ").trim().replace(/[\s:\/;,]+$/, "");
+const parseYear = y => { const m = String(y).match(/\b(1[5-9]\d\d|20\d\d)\b/); return m ? +m[1] : null; };
+const addUniq = (arr, v) => { if (v && !arr.includes(v)) arr.push(v); };
+
+function parseSource(rows, fileName, size) {
+  const hdr = rows[0].map(h => h.trim());
+  const map = mapColumns(hdr);
+  if (map.title == null) throw new Error(fileName + ": no encontré una columna de título. Columnas: " + hdr.join(" | "));
+  return { name: fileName, size, rows, hdr, map, label: fileName.replace(/\.[^.]+$/, ""), hasLib: map.lib != null, nRecs: 0 };
+}
+
+/* Registros de un archivo (agrupa ejemplares dentro de cada biblioteca) */
+function sourceRecords(src) {
+  const { rows, map } = src; const groups = new Map();
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (r.length < 2 || r.every(x => !x.trim())) continue;
+    const g = k => (map[k] == null ? "" : (r[map[k]] || "").trim());
+    const title = cleanTitle(g("title")); if (!title) continue;
+    const lib = g("lib") || src.label;
+    const author = g("author");
+    const key = lib + "§" + (map.id != null && g("id") ? "id:" + g("id") : "k:" + norm(title) + "|" + norm(author) + "|" + g("year") + "|" + g("callno") + "|" + g("isbn"));
+    let rec = groups.get(key);
+    if (!rec) { rec = { title, author, year: yearOf(g, map), publisher: "", isbn: "", callnos: [], subjects: [], types: [], collections: [], places: [], items: [], libs: {} }; groups.set(key, rec); }
+    const onlyAvail = map.availN != null && map.copies == null && map.status == null;
+    const n = onlyAvail ? (parseInt(g("availN"), 10) || 0) : map.copies != null ? (parseInt(g("copies"), 10) || 1) : 1;
+    const L = rec.libs[lib] || (rec.libs[lib] = { copies: 0, avail: 0, availKnown: false, copiesUnknown: false });
+    L.copies += n;
+    if (onlyAvail) { L.availKnown = true; L.copiesUnknown = true; L.avail += n; }
+    if (!rec.author && author) rec.author = author;
+    if (!rec.publisher) rec.publisher = g("publisher");
+    if (!rec.isbn) rec.isbn = g("isbn");
+    if (rec.year == null) rec.year = yearOf(g, map);
+    const cn = g("callno");
+    if (cn && !rec.callnos.some(c => c.callno === cn && c.lib === lib)) rec.callnos.push({ lib, callno: cn });
+    addUniq(rec.types, g("type")); addUniq(rec.collections, g("collection")); addUniq(rec.places, g("place"));
+    if (map.subjects != null) for (const s of g("subjects").split(/\s*[;|\n]\s*/)) addUniq(rec.subjects, s.trim());
+    if (map.status != null) {
+      const st = g("status"); L.availKnown = true;
+      if (/en estanteria|disponible|available/.test(norm(st))) L.avail += n;
+      rec.items.push({ lib, barcode: g("barcode"), status: st, place: g("place"), collection: g("collection") });
+    } else if (map.barcode != null && g("barcode")) {
+      rec.items.push({ lib, barcode: g("barcode"), status: "", place: g("place"), collection: g("collection") });
+    }
+  }
+  return [...groups.values()];
+}
+
+/* Clave para unir el mismo título entre bibliotecas: ISBN, o título + autor + año */
+function mergeKey(rec) {
+  const m = rec.isbn.replace(/[\s-]/g, "").match(/\d{13}|\d{9}[\dXx]/);
+  return m ? "isbn:" + m[0].toUpperCase() : "tk:" + norm(rec.title) + "|" + norm(rec.author) + "|" + (rec.year || "");
+}
+
+function mergeSources() {
+  const byKey = new Map(), all = [];
+  for (const src of SOURCES) {
+    const recs = sourceRecords(src);
+    src.nRecs = recs.length;
+    for (const rec of recs) {
+      const k = mergeKey(rec);
+      let arr = byKey.get(k); if (!arr) { arr = []; byKey.set(k, arr); }
+      // solo se une con una ficha de OTRA biblioteca (dentro de una biblioteca se respeta cada registro)
+      const tgt = arr.find(m => !Object.keys(rec.libs).some(l => l in m.libs));
+      if (!tgt) { arr.push(rec); all.push(rec); continue; }
+      Object.assign(tgt.libs, rec.libs);
+      if (!tgt.author) tgt.author = rec.author;
+      if (!tgt.publisher) tgt.publisher = rec.publisher;
+      if (!tgt.isbn) tgt.isbn = rec.isbn;
+      if (tgt.year == null) tgt.year = rec.year;
+      rec.callnos.forEach(c => tgt.callnos.push(c));
+      rec.items.forEach(c => tgt.items.push(c));
+      ["subjects", "types", "collections", "places"].forEach(f => rec[f].forEach(v => addUniq(tgt[f], v)));
+    }
+  }
+  if (!all.length) throw new Error("No se encontraron registros con título.");
+  const libStats = new Map();
+  const records = all.map((r, idx) => {
+    r.uid = idx;
+    r.libNames = Object.keys(r.libs);
+    r.copies = r.libNames.reduce((a, l) => a + r.libs[l].copies, 0);
+    r.avail = r.libNames.reduce((a, l) => a + r.libs[l].avail, 0);
+    r.availKnown = r.libNames.some(l => r.libs[l].availKnown);
+    r.copiesUnknown = r.libNames.some(l => r.libs[l].copiesUnknown);
+    const dw = r.callnos.find(c => parseDewey(c.callno));
+    r.callno = (dw || r.callnos[0] || { callno: "" }).callno;
+    r.dewey = parseDewey(r.callno);
+    r.class3 = r.dewey ? r.dewey.slice(0, 3) : "Otras";
+    r.topic = deweyLabel(r.dewey);
+    r.type = r.types[0] || "";
+    r.lang = langOf(r.title);
+    r.biblio = !(NON_BIBLIO.test(norm(r.type)) || (!r.dewey && !r.type && NON_BIBLIO_TITLE.test(norm(r.title))));
+    r.n = {
+      t: norm(r.title), a: norm(r.author), s: norm(r.subjects.join(" ; ")),
+      c: norm(r.callnos.map(c => c.callno).join(" ") + " " + r.topic),
+      o: norm([r.publisher, r.isbn, r.collections.join(" "), r.type, r.places.join(" "), r.libNames.join(" ")].join(" "))
+    };
+    r.n.all = r.n.t + " " + r.n.a + " " + r.n.s + " " + r.n.c + " " + r.n.o;
+    for (const l of r.libNames) {
+      const s = libStats.get(l) || { records: 0, copies: 0, avail: 0 };
+      s.records++; s.copies += r.libs[l].copies; s.avail += r.libs[l].avail; libStats.set(l, s);
+    }
+    return r;
+  });
+  const years = records.map(r => r.year).filter(Boolean);
+  DATA = {
+    records, libStats, sources: SOURCES,
+    hasStatus: records.some(r => r.availKnown), copiesUnknown: records.some(r => r.copiesUnknown), hasSubjects: records.some(r => r.subjects.length),
+    yMin: years.length ? Math.min(...years) : null, yMax: years.length ? Math.max(...years) : null,
+    totalCopies: records.reduce((a, r) => a + r.copies, 0), totalAvail: records.reduce((a, r) => a + r.avail, 0),
+    shared: records.filter(r => r.libNames.length > 1).length,
+    tokW: new Map()
+  };
+  linkProgs();
+}
+
+/* ============ Bibliografías de programas ============ */
+const PROGS = [];
+let COURSES = [];
+let PSTAT = { courses: 0, entries: 0, matched: 0, byCode: 0, oblig: 0, obligMatched: 0 };
+const PALIAS = {
+  code: ["codigo asignatura", "codigo de asignatura", "cod asignatura", "codigo", "sigla", "cod"],
+  course: ["nombre asignatura", "nombre de la asignatura", "asignatura", "nombre del curso", "curso", "ramo", "programa de asignatura"],
+  career: ["carrera", "plan de estudios", "plan de estudio", "departamento"],
+  level: ["semestre", "nivel", "nivel semestre", "semestre plan"],
+  contents: ["contenidos", "contenidos minimos", "unidades", "unidades tematicas", "unidad tematica", "unidad", "temas"],
+  refOb: ["bibliografia obligatoria", "bibliografia basica", "bibliografia principal", "bibliografia minima", "bibliografia fundamental"],
+  refCo: ["bibliografia complementaria", "bibliografia recomendada", "bibliografia adicional", "bibliografia sugerida"],
+  ref: ["referencia", "referencias", "referencia bibliografica", "referencias bibliograficas", "cita", "cita bibliografica", "descripcion bibliografica", "detalle bibliografico"],
+  cat: ["tipo de bibliografia", "tipo bibliografia", "categoria bibliografica", "categoria", "bibliografia", "tipo de texto", "tipo"],
+  title: ["titulo", "title", "titulo del libro", "libro"],
+  author: ["autor", "autores", "author"],
+  year: ["ano", "ano de edicion", "ano de publicacion", "ano publicacion", "anio"],
+  isbn: ["isbn"], edition: ["edicion"], publisher: ["editorial"]
+};
+const PFIELD = { refOb: "Bibliografía obligatoria (referencias)", refCo: "Bibliografía complementaria (referencias)", ref: "Referencia completa", code: "Código", course: "Asignatura", career: "Carrera", level: "Semestre / nivel", contents: "Contenidos / unidades", cat: "Tipo de bibliografía", title: "Título", author: "Autor", year: "Año", isbn: "ISBN", edition: "Edición", publisher: "Editorial" };
+function mapWith(hdr, alias) {
+  const hn = hdr.map(norm), map = {}, used = new Set();
+  for (const f of Object.keys(alias)) for (const a of alias[f]) { const i = hn.findIndex((h, k) => !used.has(k) && h === a); if (i >= 0) { map[f] = i; used.add(i); break; } }
+  for (const f of Object.keys(alias)) {
+    if (map[f] != null) continue;
+    for (const a of alias[f]) { if (a.length < 8) continue; const i = hn.findIndex((h, k) => !used.has(k) && h.includes(a)); if (i >= 0) { map[f] = i; used.add(i); break; } }
+  }
+  return map;
+}
+function progMap(rows) {
+  const hdr = rows[0].map(h => h.trim()), map = mapWith(hdr, PALIAS);
+  if (map.title == null && map.ref == null && map.cat != null) { // una columna «Bibliografía» con la cita completa
+    const vals = rows.slice(1, 40).map(r => (r[map.cat] || "").trim()).filter(Boolean);
+    if (vals.reduce((a, v) => a + v.length, 0) / (vals.length || 1) > 35) { map.ref = map.cat; delete map.cat; }
+  }
+  return map;
+}
+function isProgHeader(rows) {
+  const m = progMap(rows), refs = m.title != null || m.ref != null || m.refOb != null || m.refCo != null, wide = m.refOb != null || m.refCo != null;
+  return refs && (m.course != null || (m.code != null && (m.cat != null || wide)));
+}
+/* extrae autor, año, título e ISBN de una referencia bibliográfica (APA u otra) */
+function parseRef(s) {
+  const raw = String(s).replace(/\*+/g, "").replace(/\s+/g, " ").trim();
+  const isbn = (raw.replace(/[\s-]/g, "").match(/\d{13}|\d{9}[\dXx]/) || [""])[0];
+  let author = "", title = "", year = null;
+  const m = raw.match(/^(.+?)\s*\(\s*((?:19|20)\d\d)[a-z]?\s*\)\.?\s*(.+)$/);
+  if (m) { author = m[1]; year = +m[2]; title = m[3].split(/\.\s+(?=[A-ZÁÉÍÓÚÑ0-9¿¡])/)[0]; }
+  else {
+    const parts = raw.split(/\.\s+(?=[A-ZÁÉÍÓÚÑ0-9¿¡])/);
+    let k = 1; author = parts[0];
+    while (parts[k] && /^[A-ZÁÉÍÓÚÑ]{1,2}$/.test(parts[k].trim())) author += ". " + parts[k++].trim();
+    title = parts[k] || parts[0];
+    const ym = raw.match(/(?:^|[\s(,\[])((?:19|20)\d\d)(?=[\s).,;\]]|$)/); year = ym ? +ym[1] : null;
+  }
+  title = title.replace(/\s*\(\s*\d+\s*(?:a|ª|º|era|da|ra|va|ta)?\.?\s*(?:ed|edicion|edición)\.?\s*\)\s*$/i, "").replace(/[.:,;\s]+$/, "").trim();
+  return { author: author.replace(/[.\s]+$/, "").trim(), title, year, isbn };
+}
+const splitRefs = cell => String(cell || "").split(/\r?\n|\s*\|\s*|;\s*(?=[A-ZÁÉÍÓÚÑ][^;]{2,},)/).map(x => x.replace(/^\s*(?:\d+[.)]|[-•·*])\s*/, "").trim()).filter(x => x.length >= 8);
+function catOf(s) {
+  const n = norm(s);
+  if (/complement|recomend|opcional|adicional|sugerid|referencia|lectura/.test(n)) return "complementaria";
+  if (/oblig|basic|principal|fundamental|texto guia|texto base|minima/.test(n)) return "obligatoria";
+  return "sin categoría";
+}
+function parseProg(rows, fileName, size) {
+  const hdr = rows[0].map(h => h.trim()), map = progMap(rows), entries = [];
+  const wide = map.refOb != null || map.refCo != null;
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (r.length < 2 || r.every(x => !x.trim())) continue;
+    const g = k => (map[k] == null ? "" : (r[map[k]] || "").trim());
+    let course = g("course").replace(/\s+/g, " "), code = g("code");
+    if (!code && course) { const m = course.match(/^([A-Za-z]{2,6}[- ]?\d{2,4}[A-Za-z]?)\s*[-:–.]?\s+(.+)$/); if (m) { code = m[1]; course = m[2]; } }
+    if (!course) course = code;
+    if (!course) continue;
+    const lv = parseInt((g("level").match(/\d+/) || [])[0], 10);
+    const base = { code, course, career: g("career"), level: isNaN(lv) ? null : lv, contents: g("contents") };
+    const add = (ref, cat, colTitle, colAuthor) => {
+      const p = parseRef(ref || colTitle);
+      const title = cleanTitle(colTitle || p.title);
+      if (!title) return;
+      entries.push({ ...base, cat, title, author: colAuthor || p.author, year: parseYear(g("year")) || p.year, isbn: g("isbn") || p.isbn, edition: g("edition"), ref: ref || "" });
+    };
+    if (wide) {
+      if (map.refOb != null) splitRefs(r[map.refOb]).forEach(x => add(x, "obligatoria", "", ""));
+      if (map.refCo != null) splitRefs(r[map.refCo]).forEach(x => add(x, "complementaria", "", ""));
+    } else {
+      const cat = map.cat == null ? "sin categoría" : catOf(g("cat"));
+      if (map.ref != null && g("ref") && map.title == null) splitRefs(g("ref")).length > 1 && !map.cat ? splitRefs(g("ref")).forEach(x => add(x, cat, "", "")) : add(g("ref"), cat, "", g("author"));
+      else add(g("ref"), cat, g("title"), g("author"));
+    }
+  }
+  if (!entries.length) throw new Error(fileName + ": parece una bibliografía de programas pero no pude leer referencias (¿columna de título o de referencia?).");
+  return { kind: "prog", name: fileName, size, hdr, map, entries };
+}
+function buildCourses() {
+  const byKey = new Map();
+  for (const src of PROGS) for (const e of src.entries) {
+    const key = e.code ? "c:" + norm(e.code) : "n:" + norm(e.course);
+    let c = byKey.get(key);
+    if (!c) { c = { key, code: e.code, name: e.course, career: e.career, level: e.level, units: [], entries: [], seen: new Map() }; byKey.set(key, c); }
+    if (!c.career && e.career) c.career = e.career;
+    if (c.level == null && e.level != null) c.level = e.level;
+    for (const u of e.contents.split(/\s*[;|\n]\s*/)) { const t = u.trim(); if (t && !c.units.includes(t)) c.units.push(t); }
+    const ek = norm(e.title) + "|" + norm(e.author).split(" ")[0] + "|" + norm(e.isbn);
+    const prev = c.seen.get(ek);
+    if (prev) { if (prev.cat !== "obligatoria" && e.cat === "obligatoria") prev.cat = "obligatoria"; continue; }
+    const entry = { cat: e.cat, title: e.title, author: e.author, year: e.year, isbn: e.isbn, edition: e.edition, ref: e.ref || "", course: c, rec: null, how: "", note: "", synthetic: false };
+    c.seen.set(ek, entry); c.entries.push(entry);
+  }
+  COURSES = [...byKey.values()];
+  for (const c of COURSES) c.n = { name: norm(c.name), cont: norm(c.units.join(" ")) };
+  PSTAT = { courses: COURSES.length, entries: COURSES.reduce((a, c) => a + c.entries.length, 0), matched: 0, byCode: 0, oblig: COURSES.reduce((a, c) => a + c.entries.filter(e => e.cat === "obligatoria").length, 0), obligMatched: 0 };
+}
+/* cruza cada título de los programas con el catálogo: ISBN, o título + autor (conservador) */
+function linkProgs() {
+  PSTAT.matched = 0; PSTAT.obligMatched = 0; PSTAT.byCode = 0;
+  for (const c of COURSES) { c.entries = c.entries.filter(e => !e.synthetic); for (const e of c.entries) { e.rec = null; e.how = ""; e.note = ""; } }
+  if (!DATA) return;
+  for (const r of DATA.records) { r.progs = []; if (r.n._o !== undefined) { r.n.o = r.n._o; r.n.all = r.n._all; } }
+  const ST = new Set([...ES_SW, ...EN_SW, "libro", "edicion", "ed", "vol", "tomo"]);
+  const toks = s => [...new Set(norm(s).split(" ").filter(w => w.length >= 3 && !ST.has(w) && !/^\d+$/.test(w)))];
+  const atoks = a => norm(a).split(" ").filter(w => w.length >= 3);
+  const shareAuthor = (ea, ra) => { const x = atoks(ea), y = atoks(ra); return x.some(w => y.includes(w)); };
+  const bestOf = list => list.slice().sort((a, b) => (b.avail - a.avail) || (b.copies - a.copies))[0];
+  const byIsbn = new Map(), byTitle = new Map(), idx = new Map();
+  for (const r of DATA.records) {
+    for (const m of (r.isbn.replace(/[\s-]/g, "").match(/\d{13}|\d{9}[\dXx]/g) || [])) { const k = m.toUpperCase(); if (!byIsbn.has(k)) byIsbn.set(k, r); }
+    let a = byTitle.get(r.n.t); if (!a) byTitle.set(r.n.t, a = []); a.push(r);
+    r.n._tt = toks(r.title);
+    for (const tk of r.n._tt) if (tk.length >= 4) { let l = idx.get(tk); if (!l) idx.set(tk, l = []); l.push(r); }
+  }
+  const fuzzy = e => {
+    const refText = e.ref || (e.title + " " + e.author), refT = new Set(toks(refText)), titleT = toks(e.title);
+    const counts = new Map();
+    for (const tk of refT) { const l = idx.get(tk); if (!l || l.length > 400) continue; for (const r of l) counts.set(r, (counts.get(r) || 0) + 1); }
+    let best = null, bs = 0;
+    for (const [r, n] of counts) {
+      const rt = r.n._tt; if (!rt.length || (n < 2 && rt.length > 1)) continue;
+      const cov1 = rt.filter(t => refT.has(t)).length / rt.length;
+      const cov2 = titleT.length >= 2 ? titleT.filter(t => rt.includes(t)).length / titleT.length : 0;
+      if (!(cov1 >= 0.8 || cov2 >= 0.9)) continue;
+      const ra = atoks(r.author), authorHit = ra.length ? ra.some(t => refT.has(t)) : false;
+      if (r.author && !authorHit && (rt.length < 4 || !e.author === false)) { if (rt.length < 4) continue; }
+      if (rt.length < 3 && !authorHit) continue;
+      const sc = cov1 + cov2 + (authorHit ? 1 : 0) + Math.min(r.avail, 3) * 0.01;
+      if (sc > bs) { bs = sc; best = r; }
+    }
+    return best;
+  };
+  for (const c of COURSES) for (const e of c.entries) {
+    let rec = null, how = "";
+    for (const m of (e.isbn.replace(/[\s-]/g, "").match(/\d{13}|\d{9}[\dXx]/g) || [])) { const r = byIsbn.get(m.toUpperCase()); if (r) { rec = r; how = "ISBN"; break; } }
+    if (!rec) {
+      const nt = norm(e.title);
+      let cands = byTitle.get(nt) || [];
+      if (!cands.length && nt.split(" ").length >= 2) cands = DATA.records.filter(r => { const t = r.n.t; return t.startsWith(nt + " ") || (t.split(" ").length >= 2 && nt.startsWith(t + " ")); });
+      if (cands.length) {
+        const withAuthor = e.author ? cands.filter(r => !r.author || shareAuthor(e.author, r.author)) : cands;
+        if (withAuthor.length) { rec = bestOf(withAuthor); how = e.author ? "título y autor" : "título"; }
+      }
+    }
+    if (!rec) { rec = fuzzy(e); if (rec) how = "referencia (aproximada)"; }
+    if (rec && how !== "ISBN" && e.year && rec.year && e.year !== rec.year) e.note = "el programa cita la edición de " + e.year + " y en el catálogo figura la de " + rec.year;
+    if (rec) {
+      e.rec = rec; e.how = how; PSTAT.matched++; if (e.cat === "obligatoria") PSTAT.obligMatched++;
+      rec.progs.push({ cat: e.cat, course: c, entry: e });
+    }
+  }
+  /* títulos del catálogo que mencionan el código de la asignatura (p. ej. «para el curso MAT-213») */
+  for (const c of COURSES) {
+    const cn = norm(c.code); if (!/\d/.test(cn) || cn.length < 5) continue;
+    const compact = cn.replace(/ /g, ""), have = new Set(c.entries.filter(e => e.rec).map(e => e.rec.uid));
+    for (const r of DATA.records) {
+      if (have.has(r.uid)) continue;
+      const hay = " " + r.n.all + " ";
+      if (hay.includes(" " + cn + " ") || hay.includes(" " + compact + " ")) {
+        const e = { cat: "sin categoría", title: r.title, author: r.author, year: r.year, isbn: r.isbn, edition: "", ref: "", course: c, rec: r, how: "código en el catálogo", note: "", synthetic: true };
+        c.entries.push(e); r.progs.push({ cat: e.cat, course: c, entry: e }); have.add(r.uid); PSTAT.byCode++;
+      }
+    }
+  }
+  /* para que el buscador general encuentre por código o nombre de asignatura */
+  for (const r of DATA.records) {
+    if (r.n._o === undefined) { r.n._o = r.n.o; r.n._all = r.n.all; }
+    const extra = r.progs.length ? norm(r.progs.map(p => (p.course.code || "") + " " + p.course.name).join(" ; ")) : "";
+    if (extra) { r.n.o = r.n._o + " " + extra; r.n.all = r.n._all + " " + extra; }
+  }
+  DATA.tokW = new Map();
+}
+
+function renderProgReport() {
+  const box = $("#progBox"); if (!box) return;
+  box.hidden = !COURSES.length || !DATA; if (box.hidden) return;
+  const all = COURSES.flatMap(c => c.entries.filter(e => !e.synthetic));
+  const by = h => all.filter(e => e.how === h).length;
+  const un = all.filter(e => !e.rec), apx = all.filter(e => e.how === "referencia (aproximada)");
+  const li = e => `<li>${esc(courseLabel(e.course))} · ${esc(e.cat)}: ${esc(e.ref || (e.title + (e.author ? " — " + e.author : "")))}${e.rec ? " <i>→ " + esc(e.rec.title) + "</i>" : ""}</li>`;
+  $("#progRep").innerHTML = `<p><b>${fmt(PSTAT.matched)}</b> de ${fmt(PSTAT.entries)} referencias cruzadas con el catálogo (${fmt(PSTAT.obligMatched)} de ${fmt(PSTAT.oblig)} obligatorias). Por ISBN: ${by("ISBN")} · título y autor: ${by("título y autor") + by("título")} · referencia aproximada: ${apx.length}. Además, ${fmt(PSTAT.byCode)} títulos del catálogo mencionan el código de alguna asignatura.</p>`
+    + (apx.length ? `<p>Coincidencias aproximadas (conviene revisarlas):</p><ul>${apx.slice(0, 25).map(li).join("")}</ul>` : "")
+    + (un.length ? `<p>Sin cruce (${fmt(un.length)}):</p><ul>${un.slice(0, 40).map(li).join("")}</ul>${un.length > 40 ? `<p>…y ${un.length - 40} más en el informe descargable.</p>` : ""}` : "")
+    + `<p><button class="btn" type="button" data-prep="1">Descargar informe de cruce (CSV)</button></p>`;
+}
+function exportProgReport() {
+  const cell = v => { v = v == null ? "" : String(v); return /[";\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const head = ["codigo", "asignatura", "categoria", "referencia_original", "titulo_detectado", "autor_detectado", "anio_programa", "en_catalogo", "metodo", "titulo_catalogo", "autor_catalogo", "signatura", "ejemplares_disponibles", "nota"];
+  const lines = [head.join(";")];
+  for (const c of COURSES) for (const e of c.entries) {
+    const r = e.rec;
+    lines.push([c.code, c.name, e.cat, e.ref, e.synthetic ? "" : e.title, e.synthetic ? "" : e.author, e.synthetic ? "" : e.year || "", r ? "sí" : "no", e.how, r ? r.title : "", r ? r.author : "", r ? r.callno : "", r && r.availKnown ? r.avail : "", e.note].map(cell).join(";"));
+  }
+  download("informe_cruce_bibliografia.csv", "text/csv;charset=utf-8", "﻿" + lines.join("\r\n"));
+}
+function courseLabel(c) { return c.name + (c.code ? " (" + c.code + ")" : ""); }
+function progHTML(r) {
+  if (!r.progs || !r.progs.length) return "";
+  const groups = [["obligatoria", "Obligatoria", "pill ok", () => true], ["complementaria", "Complementaria", "pill", () => true], ["sin categoría", "En programa", "pill", p => !p.entry.synthetic], ["sin categoría", "Asociado por código", "pill", p => p.entry.synthetic]];
+  const out = [];
+  for (const [cat, label, cls, flt] of groups) {
+    const cs = r.progs.filter(p => p.cat === cat && flt(p)).map(p => p.course);
+    if (!cs.length) continue;
+    out.push(`<span class="${cls}">${label}</span><span class="topic">${cs.slice(0, 2).map(c => esc(courseLabel(c))).join(" · ")}${cs.length > 2 ? " · +" + (cs.length - 2) + " más" : ""}</span>`);
+  }
+  return `<div class="row prog">${out.join(" ")}</div>`;
+}
+
+/* ============ Puntuación de búsqueda ============ */
+function tokWeight(tk) {
+  if (DATA.tokW.has(tk)) return DATA.tokW.get(tk);
+  const pt = " " + tk; let df = 0;
+  for (const r of DATA.records) if ((" " + r.n.all).includes(pt)) df++;
+  const w = Math.min(2, Math.max(0.35, Math.log(1 + DATA.records.length / (1 + df)) / 2.2));
+  DATA.tokW.set(tk, w); return w;
+}
+const FIELDS = [["t", 6], ["s", 5], ["a", 4], ["c", 3], ["o", 1.5]];
+function scoreRec(r, toks, orig, W, qn, alts) {
+  let score = 0, hits = 0; const why = { t: [], s: [], a: [] };
+  for (let i = 0; i < toks.length; i++) {
+    let best = 0, where = "", via = orig[i];
+    const test = (tk, exact, mult) => {
+      for (const [f, w] of FIELDS) {
+        const fld = r.n[f]; if (!fld) continue;
+        const ok = exact ? (" " + fld + " ").includes(" " + tk + " ") || (" " + fld + " ").includes(" " + tk + "s ") : (" " + fld).includes(" " + tk);
+        if (ok && w * mult > best) { best = w * mult; where = f; via = tk === toks[i] ? orig[i] : tk; }
+      }
+    };
+    test(toks[i], false, 1);
+    if (alts && alts[i]) for (const a of alts[i]) test(a.t, a.exact, 0.9);
+    if (!best && toks[i].length >= 5 && r.n.t.includes(toks[i])) { best = 2; where = "t"; via = orig[i]; }
+    if (best) { score += best * W[i]; hits++; if (why[where]) why[where].push(via); }
+  }
+  if (toks.length > 1 && qn && r.n.t.includes(qn)) score += r.n.t.startsWith(qn) ? 11 : 8;
+  return { score, hits, why };
+}
+function conceptBoost(r, concepts) {
+  let score = 0; const labels = [];
+  for (const c of concepts) {
+    let best = 0;
+    for (const p of c.dewey) if (r.dewey && r.dewey.startsWith(p)) best = Math.max(best, p.length > 3 ? 5 : 3.5);
+    let tHits = 0;
+    for (const t of c.tNorm) { if (t.includes(" ") || t.length > 4) { const pt = " " + t; if ((" " + r.n.t).includes(pt) || (r.n.s && (" " + r.n.s).includes(pt))) tHits++; } }
+    const sc = best + Math.min(tHits, 3) * 1.2;
+    if (sc > 0) { score += sc; labels.push(c.label); }
+  }
+  return { score, labels };
+}
+const STOP_SEARCH = new Set("de la el los las y o en un una unos unas del al a".split(" "));
+function searchRecords(qraw) {
+  const all = DATA.records;
+  const q = qraw.trim();
+  const qn = norm(q);
+  if (!qn) return { list: all.map(r => ({ r, s: 0 })), note: "", concepts: [] };
+  const compact = q.replace(/[\s-]/g, "");
+  if (/^\d{9}[\dXx]$|^\d{13}$/.test(compact)) {
+    const list = all.filter(r => r.isbn && r.isbn.replace(/[\s-]/g, "").includes(compact)).map(r => ({ r, s: 1 }));
+    if (list.length) return { list, note: "Búsqueda por ISBN.", concepts: [] };
+  }
+  if (/^\d{3}(\.\d+)?$/.test(q)) {
+    const list = all.filter(r => r.dewey.startsWith(q)).map(r => ({ r, s: 1 }));
+    return { list, note: "Clase Dewey " + q + " y sus subdivisiones (" + deweyLabel(q) + ").", concepts: [] };
+  }
+  if (/^[0-9A-Za-z]{5,}$/.test(q)) {
+    const list = all.filter(r => r.items.some(it => it.barcode && it.barcode.toLowerCase() === q.toLowerCase())).map(r => ({ r, s: 1 }));
+    if (list.length) return { list, note: "Búsqueda por código de barras.", concepts: [] };
+  }
+  const words = qn.split(" ").filter(Boolean);
+  let origs = words.filter(w => !STOP_SEARCH.has(w));
+  if (!origs.length) origs = words;
+  const toks = origs.map(stem);
+  const W = toks.map(tokWeight);
+  const alts = XL.on ? expandTokens(origs, toks) : null;
+  const exp = alts ? expLabel(origs, alts) : [];
+  const concepts = matchConcepts(qn);
+  const strong = [], weak = [];
+  for (const r of all) {
+    const s = scoreRec(r, toks, origs, W, qn, alts);
+    if (s.hits === 0) continue;
+    const cb = conceptBoost(r, concepts);
+    const row = { r, s: s.score + cb.score * 0.5, hits: s.hits };
+    (s.hits === toks.length ? strong : weak).push(row);
+  }
+  strong.sort((a, b) => b.s - a.s);
+  if (strong.length) return { list: strong, note: "", concepts, exp };
+  if (weak.length) {
+    weak.sort((a, b) => b.hits - a.hits || b.s - a.s);
+    return { list: weak, note: "Ningún título reúne todos los términos; se muestran coincidencias parciales.", concepts, exp };
+  }
+  if (concepts.length) {
+    const list = [];
+    for (const r of all) { const cb = conceptBoost(r, concepts); if (cb.score >= 3) list.push({ r, s: cb.score }); }
+    list.sort((a, b) => b.s - a.s);
+    if (list.length) return { list, note: "Sin coincidencias en título o autor; se muestran títulos de las clases Dewey relacionadas con «" + concepts.map(c => c.label).join(", ") + "».", concepts, exp };
+  }
+  return { list: [], note: "", concepts, exp };
+}
+
+/* ============ Filtros ============ */
+const F = { dewey: new Set(), types: new Set(), libs: new Set(), langs: new Set(), coll: "", avail: false, yFrom: "", yTo: "", sort: "rel" };
+const availIn = r => { if (!F.libs.size) return r.avail; let a = 0; for (const l of r.libNames) if (F.libs.has(l)) a += r.libs[l].avail; return a; };
+function passes(r, skip) {
+  if (skip !== "libs" && F.libs.size && !r.libNames.some(l => F.libs.has(l))) return false;
+  if (skip !== "langs" && F.langs.size && !F.langs.has(r.lang)) return false;
+  if (skip !== "avail" && F.avail && DATA.hasStatus && availIn(r) === 0) return false;
+  if (skip !== "dewey" && F.dewey.size && !F.dewey.has(r.class3)) return false;
+  if (skip !== "types" && F.types.size && !F.types.has(r.type || "(sin tipo)")) return false;
+  if (skip !== "coll" && F.coll && !r.collections.includes(F.coll)) return false;
+  if (skip !== "year") {
+    const yf = F.yFrom === "" ? null : +F.yFrom, yt = F.yTo === "" ? null : +F.yTo;
+    if ((yf != null || yt != null) && r.year == null) return false;
+    if (yf != null && r.year < yf) return false;
+    if (yt != null && r.year > yt) return false;
+  }
+  return true;
+}
+function sortRows(rows) {
+  const s = F.sort, cmpStr = (a, b) => a.localeCompare(b, "es", { numeric: true, sensitivity: "base" });
+  const out = rows.slice();
+  if (s === "titulo") out.sort((a, b) => cmpStr(a.r.title, b.r.title));
+  else if (s === "ano-desc") out.sort((a, b) => (b.r.year || 0) - (a.r.year || 0));
+  else if (s === "ano-asc") out.sort((a, b) => (a.r.year || 9999) - (b.r.year || 9999));
+  else if (s === "sig") out.sort((a, b) => cmpStr(a.r.callno || "~", b.r.callno || "~"));
+  return out;
+}
+
+/* ============ Tarjetas ============ */
+function libPill(l, L, withName) {
+  const nm = withName ? esc(l) + ": " : "";
+  if (!L.availKnown) return `<span class="pill">${nm}${plural(L.copies, "ejemplar", "ejemplares")}</span>`;
+  if (L.copiesUnknown) return L.avail > 0
+    ? `<span class="pill ok">${nm}${plural(L.avail, "ejemplar disponible", "ejemplares disponibles")}</span>`
+    : `<span class="pill warn">${nm}ninguno disponible</span>`;
+  return L.avail > 0
+    ? `<span class="pill ok">${nm}${L.avail} de ${plural(L.copies, "ejemplar", "ejemplares")} en estantería</span>`
+    : `<span class="pill warn">${nm}${plural(L.copies, "ejemplar", "ejemplares")} · ninguno en estantería</span>`;
+}
+function availHTML(r) {
+  if (r.libNames.length > 1) return r.libNames.map(l => libPill(l, r.libs[l], true)).join("");
+  const lib = DATA.libStats.size > 1 ? `<span class="pill">${esc(r.libNames[0])}</span>` : "";
+  return lib + libPill(r.libNames[0], r.libs[r.libNames[0]], false);
+}
+function cardHTML(r, opt = {}) {
+  const meta = [r.author, r.year, r.publisher].filter(Boolean).map(esc).join(" · ");
+  const tag = r.type && !/^libro$/i.test(r.type) ? `<span class="tag">${esc(r.type)}</span>` : "";
+  const langPill = r.lang === "en" ? `<span class="pill">Inglés</span>` : "";
+  const multi = r.libNames.length > 1;
+  const seen = new Set(), sigs = [];
+  for (const c of r.callnos) if (!seen.has(c.callno)) { seen.add(c.callno); sigs.push(c); }
+  const sig = sigs.length
+    ? sigs.slice(0, 3).map(c => `<button type="button" class="sig" data-copy="${esc(c.callno)}" title="Copiar signatura">${esc(c.callno)}</button>${multi ? `<span class="topic">${esc(c.lib)}</span>` : ""}`).join(" ") + `<span class="topic">${esc(r.topic)}</span>`
+    : `<span class="topic">Sin clasificación Dewey</span>`;
+  const place = r.places.length ? `<span class="pill">${esc(r.places[0])}</span>` : "";
+  const coll = r.collections.length ? `<span class="pill">${esc(r.collections[0])}</span>` : "";
+  const isbn = r.isbn ? `<span class="topic">ISBN ${esc(r.isbn)}</span>` : "";
+  const subj = r.subjects.length ? `<div class="row">${r.subjects.slice(0, 8).map(s => `<button type="button" class="chip" data-subject="${esc(s)}">${esc(s)}</button>`).join("")}</div>` : "";
+  const items = r.items.length ? `<details class="items"><summary>Ver ejemplares (${r.items.length})</summary><ul>${r.items.slice(0, 25).map(it => `<li>${[multi ? it.lib : "", it.barcode, it.status, it.place || it.collection].filter(Boolean).map(esc).join(" · ")}</li>`).join("")}${r.items.length > 25 ? "<li>…</li>" : ""}</ul></details>` : "";
+  const why = opt.reasons && opt.reasons.length ? `<p class="why">${opt.reasons.map(esc).join(" · ")}</p>` : "";
+  const rank = opt.rank ? `<div class="rank" aria-hidden="true">${opt.rank}</div>` : "";
+  return `<article class="card">${rank}<h3>${esc(r.title)}</h3><div class="meta">${meta || "&nbsp;"}</div><div class="row">${sig}</div><div class="row">${availHTML(r)}${langPill}${tag}${coll}${place}${isbn}</div>${progHTML(r)}${why}${subj}${items}</article>`;
+}
+
+/* ============ Buscador: render ============ */
+let CUR = { rows: [], baseRows: [], shown: 25, note: "", concepts: [] };
+function runSearch() {
+  const res = searchRecords($("#q").value);
+  const base = res.list;
+  CUR.baseRows = base;
+  renderFacets(base);
+  CUR.rows = F.sort === "rel" ? base.filter(x => passes(x.r)) : sortRows(base.filter(x => passes(x.r)));
+  CUR.shown = 25; CUR.note = res.note; CUR.concepts = res.concepts; CUR.exp = res.exp || [];
+  renderResults();
+}
+function renderFacets(base) {
+  const countBy = (skip, keyFn) => {
+    const m = new Map();
+    for (const x of base) if (passes(x.r, skip)) { const ks = keyFn(x.r); for (const k of (Array.isArray(ks) ? ks : [ks])) m.set(k, (m.get(k) || 0) + 1); }
+    return m;
+  };
+  // bibliotecas
+  const multi = DATA.libStats.size > 1;
+  $("#gLib").hidden = !multi;
+  if (multi) {
+    const lm = countBy("libs", r => r.libNames);
+    const lKeys = [...DATA.libStats.keys()].sort((a, b) => (lm.get(b) || 0) - (lm.get(a) || 0));
+    $("#fLibs").innerHTML = lKeys.map(k => `<label><input type="checkbox" data-f="libs" value="${esc(k)}" ${F.libs.has(k) ? "checked" : ""}><span>${esc(k)}</span><span class="n">${lm.get(k) || 0}</span></label>`).join("");
+  }
+  // idioma
+  const gm = countBy("langs", r => r.lang);
+  const LANGN = { es: "Español", en: "Inglés", "?": "Otro / sin determinar" };
+  $("#fLangs").innerHTML = ["es", "en", "?"].filter(k => gm.get(k) || F.langs.has(k)).map(k => `<label><input type="checkbox" data-f="langs" value="${k}" ${F.langs.has(k) ? "checked" : ""}><span>${LANGN[k]}</span><span class="n">${gm.get(k) || 0}</span></label>`).join("");
+  // Dewey
+  const dm = countBy("dewey", r => r.class3);
+  const dKeys = [...new Set([...dm.keys(), ...F.dewey])].sort((a, b) => (dm.get(b) || 0) - (dm.get(a) || 0) || a.localeCompare(b));
+  const showAll = $("#fDewey").dataset.all === "1";
+  const dShow = showAll ? dKeys : dKeys.slice(0, 10);
+  $("#fDewey").innerHTML = dShow.map(k => `<label><input type="checkbox" data-f="dewey" value="${esc(k)}" ${F.dewey.has(k) ? "checked" : ""}><span>${k === "Otras" ? "Otras / sin Dewey" : esc(k + " " + (DEWEY3[k] || DEWEY_MAIN[k[0]] || ""))}</span><span class="n">${dm.get(k) || 0}</span></label>`).join("")
+    + (dKeys.length > 10 ? `<button type="button" class="more-link" id="dToggle">${showAll ? "Ver menos" : "Ver las " + dKeys.length + " clases"}</button>` : "");
+  // tipos
+  const tm = countBy("types", r => r.type || "(sin tipo)");
+  const tKeys = [...new Set([...tm.keys(), ...F.types])].sort((a, b) => (tm.get(b) || 0) - (tm.get(a) || 0));
+  $("#fTypes").innerHTML = tKeys.length > 1 || F.types.size ? tKeys.map(k => `<label><input type="checkbox" data-f="types" value="${esc(k)}" ${F.types.has(k) ? "checked" : ""}><span>${esc(k)}</span><span class="n">${tm.get(k) || 0}</span></label>`).join("") : `<span class="topic">Un solo tipo en el archivo</span>`;
+}
+function renderResults() {
+  const rows = CUR.rows;
+  $("#count").textContent = rows.length === 0 ? "Sin resultados" : plural(rows.length, "resultado", "resultados");
+  const note = $("#note");
+  if (CUR.note) { note.textContent = CUR.note; note.hidden = false; } else note.hidden = true;
+  const rel = $("#related");
+  const expHTML = CUR.exp && CUR.exp.length ? `<span class="topic">Incluí equivalentes: ${CUR.exp.map(esc).join(" · ")}</span>` : "";
+  rel.innerHTML = expHTML + (CUR.concepts && CUR.concepts.length
+    ? `<span>Temas relacionados:</span>` + CUR.concepts.map(c => `<button type="button" class="chip" data-concept="${esc(c.dewey[0])}">${esc(c.label)} · ${esc(c.dewey[0])}</button>`).join("") : "");
+  const list = $("#list");
+  if (!rows.length) {
+    list.innerHTML = `<div class="empty">No hay resultados. Prueba con menos palabras, quita filtros o busca por clase Dewey (por ejemplo <button type="button" class="chip" data-concept="515">515</button>).</div>`;
+    $("#btnMore").hidden = true; return;
+  }
+  list.innerHTML = rows.slice(0, CUR.shown).map(x => cardHTML(x.r)).join("");
+  $("#btnMore").hidden = rows.length <= CUR.shown;
+  $("#btnMore").textContent = `Mostrar más (${fmt(rows.length - CUR.shown)} restantes)`;
+}
+
+/* ============ Agente conversacional (por reglas) ============ */
+const INTRO_Q = ["basico","basica","introduccion","introductorio","principiante","empezar","comenzar","inicial","elemental","primer","desde cero","facil","sencillo","recien"];
+const ADV_Q = ["avanzado","avanzada","profundizar","posgrado","magister","doctorado","riguroso","teorico","ya tengo bases","con bases"];
+const EX_Q = ["ejercicio","problema","practicar","practica","guia","resueltos"];
+const STOP_ASSIST = new Set([...STOP_SEARCH, ..."para por con sobre acerca que mi me es ser quiero quisiera necesito busco buscar encontrar estudiar estudio aprender aprende libros libro algo tema temas recomienda recomiendame recomendar recomendaciones leer saber conocer entender material bibliografia texto textos cual cuales como muy hay tiene tienen ver dame dime hola favor porfa mejor buen bueno buena desde cero nivel estoy trabajando quiere gustaria".split(" ")]);
+const META_STOP = new Set("veo cuesta dime cuentame donde esta estan estoy encuentro lo ese esa esos esas este estos numero opcion primero segundo tercero cuarto quinto ultimo autor autores distinto otro otra otros otras parecido parecidos similar similares mas menos tambien solo ya tengo lei vi no si gracias hola buenas buenos dias tardes noches plan ruta orden primero secuencia programa recomiendas recomendaste sugeriste ayuda puedes hacer haces funciona ahora entonces pero arma armame armar hazme lectura quita quitar filtros preferencias opciones siguiente alternativas alternativa diferencias diferencia diferencian comparar compara comparalos conviene elijo muestrame muestra explicame explica explicar entre estos estas ellos esos".split(" "));
+const INTENT_STEMS = new Set([...INTRO_Q, ...ADV_Q, ...EX_Q, ..."facil simple dificil complicado profundo reciente actual nuevo ingles espanol castellano examen curiosidad divulgacion disponible estanteria tesis titulos".split(" ")].flatMap(s => s.split(" ")).map(stem));
+const FILLER = /^(quiero|quisiera|necesito|busco|me gustaria|estoy buscando)\s+(estudiar|aprender|saber|leer|libros?\s+(de|sobre)|algo\s+(de|sobre)|material\s+(de|sobre))\s+/i;
+const hasAny = (qn, arr) => arr.some(a => (" " + qn + " ").includes(" " + a));
+
+const RX = {
+  greet: /^(hola|holi|buenas|buen dia|buenos dias|buenas tardes|buenas noches|hey|saludos)\b/,
+  thanks: /\b(gracias|genial|perfecto|excelente|buenisimo|muy bien)\b/,
+  reset: /\b(empezar de nuevo|comenzar de nuevo|partir de nuevo|reiniciar|reinicia|otro tema|cambiar de tema|nuevo tema|tema distinto|borrar todo)\b/,
+  clear: /\b(quita(r)? (los |mis )?(filtros|preferencias)|sin filtros|borrar (los )?filtros)\b/,
+  more: /^(otro|otra|otros|otras|mas|algo mas|dame mas|muestrame mas|mas opciones|mas libros|que mas|siguiente|sigue|continua|y que mas|alguno mas)\b/,
+  similar: /\b(parecid[oa]s? a|similar(es)? a|mas como|algo como|como el|como la|del estilo de|en la linea de)\b/,
+  detail: /\b(cuentame|dime mas|detalles?|informacion|info|donde esta|donde queda|donde lo encuentro|donde lo busco|como lo encuentro|como lo busco|ubicacion|signatura|esta disponible|hay ejemplares|en que estado)\b/,
+  why: /\b(por que|porque)\b.*\b(recomend|recomiend|suger|elegiste|escogiste|ese|este)\w*|\b(como llegaste|en que te basas)\b/,
+  plan: /\b(plan de estudio|ruta|secuencia|orden de lectura|por donde (empiezo|parto|comienzo|partir)|que leer primero|que leo primero|programa de estudio)\b/,
+  help: /\b(ayuda|que puedes hacer|como funcionas|como funciona|que haces)\b/,
+  tooHard: /\b(muy|demasiado|bastante) (dificil|avanzad[oa]|complicad[oa]|teoric[oa]|abstract[oa]|denso)\b|\bno entiendo\b|\bmas facil\b|\bmas simple\b/,
+  tooEasy: /\b(muy|demasiado) (basic[oa]|facil|simple|elemental)\b|\bmas dificil\b|\bmas profund[oa]\b/,
+  have: /\b(ya (lo )?(tengo|lei|vi|use|conozco)|ese ya|descartalo|no me sirve|no me interesa)\b/,
+  otherAuthor: /\b(otro autor|autor distinto|autores distintos|de otro autor)\b/,
+  recent: /\b(reciente|recientes|actual|actuales|actualizad[oa]s?|nuev[oa]s?|ultim[oa]s? (anos|ediciones?)|moderno)\b/,
+  es: /\b(espanol|castellano)\b/,
+  en: /\b(en ingles|english)\b/,
+  avail: /\b(disponibles?|en estanteria|que pueda (llevar|pedir|prestar)|para prestamo)\b/,
+  anyAvail: /\b(aunque (este|esten) prestad[oa]s?|incluso prestad[oa]s?|no importa si (esta|estan) prestad[oa]s?)\b/,
+  thesisDocs: /\b(tesis|trabajos? de grado)\b/,
+  ex: /\b(ejercicios?|practicar|practica|guias?|resueltos)\b/,
+  exam: /\b(examen|examenes|certamen|para (la |una |mi |el )?(prueba|control|parcial))\b/,
+  research: /\b(mi tesis|para (mi|la|una) tesis|investigar|investigacion|paper|magister|doctorado|posgrado)\b/,
+  curious: /\b(curiosidad|divulgacion|por gusto|por interes|entretenid[oa])\b/,
+  teach: /\b(ensenar|ensenanza|docente|profesor|profesora|colegio|liceo|planificar clases|didactic[oa])\b/,
+  course: /\b(para (un|mi|el) (curso|ramo|asignatura)|mi (curso|ramo|asignatura))\b/,
+  struggle: /\b(me cuesta|no entiendo|estoy perdid[oa]|tengo dificultad(es)?)\b/,
+  firstYear: /\b(primer ano|primer semestre|recien (entro|ingrese|parto|empiezo)|soy nuev[oa])\b/,
+  now: /\b(muestrame ya|dame ya|ya muestrame|sin preguntas|no quiero responder|saltar|salta eso|omitir|prefiero ver (los )?(libros|titulos))\b/,
+  compare: /\b(diferencias?|diferencian|comparar|compara|comparalos|cual es mejor|cual me conviene|cual elijo|cual (leo|uso) primero)\b/,
+  alt: /\b(alternativas?|otras? opciones|algo distinto|otro libro)\b/
+};
+
+
+/* ---------- subtemas para las preguntas de seguimiento (solo orientan la pregunta; no son bibliografía) ---------- */
+const SUBTOPICS = {
+  "Ecuaciones diferenciales": [["Ecuaciones de primer orden", "primer orden"], ["Ecuaciones lineales de segundo orden", "segundo orden lineales"], ["Sistemas de ecuaciones diferenciales", "sistemas"], ["Transformada de Laplace", "laplace"], ["Series de potencias", "series"], ["Aplicaciones y modelado", "aplicaciones modelos"], ["Ecuaciones en derivadas parciales", "derivadas parciales"]],
+  "Cálculo y análisis": [["Límites y continuidad", "limites continuidad"], ["Derivadas y sus aplicaciones", "derivadas"], ["Integrales", "integrales"], ["Sucesiones y series", "series sucesiones"], ["Varias variables", "varias variables"], ["Cálculo vectorial", "vectorial"]],
+  "Álgebra lineal": [["Sistemas lineales y matrices", "sistemas matrices"], ["Espacios vectoriales", "espacios vectoriales"], ["Transformaciones lineales", "transformaciones"], ["Valores y vectores propios", "propios autovalores"], ["Producto interno y ortogonalidad", "producto interno"]],
+  "Álgebra": [["Teoría de grupos", "grupos"], ["Anillos y cuerpos", "anillos cuerpos"], ["Polinomios", "polinomios"], ["Teoría de Galois", "galois"]],
+  "Probabilidad y estadística": [["Probabilidad básica", "probabilidad"], ["Variables aleatorias y distribuciones", "variables aleatorias distribuciones"], ["Inferencia estadística", "inferencia"], ["Regresión", "regresion"], ["Procesos estocásticos", "estocasticos"]],
+  "Geometría": [["Geometría analítica", "analitica"], ["Geometría diferencial", "diferencial"], ["Geometría euclidiana", "euclidiana"], ["Trigonometría", "trigonometria"]],
+  "Topología y teoría de nudos": [["Espacios métricos", "metricos"], ["Espacios topológicos", "topologicos"], ["Topología algebraica", "algebraica homologia"], ["Teoría de nudos", "nudos"]],
+  "Matemática discreta y lógica": [["Lógica y conjuntos", "logica conjuntos"], ["Combinatoria", "combinatoria"], ["Teoría de grafos", "grafos"], ["Inducción y demostraciones", "induccion demostraciones"]],
+  "Métodos numéricos y optimización": [["Métodos numéricos", "numericos"], ["Optimización", "optimizacion"], ["Programación lineal", "programacion lineal"], ["Interpolación y aproximación", "interpolacion aproximacion"]],
+  "Teoría de números y aritmética": [["Congruencias", "congruencias"], ["Números primos", "primos"], ["Criptografía", "criptografia"]],
+  "Variable compleja": [["Funciones analíticas", "analiticas"], ["Integración compleja", "integracion"], ["Series de Laurent", "laurent"], ["Residuos", "residuos"]],
+  "Análisis real y funcional": [["Sucesiones y series de funciones", "sucesiones series funciones"], ["Medida e integral de Lebesgue", "lebesgue medida"], ["Espacios métricos", "metricos"], ["Análisis funcional", "funcional hilbert banach"]]
+};
+const PURPOSE_STRIP = /\b(es )?para (mi|la|una|el|un) (investigacion|tesis|prueba|control|parcial|curso|ramo|asignatura)\b|\bpara investigar\b|\bmi (investigacion|curso|ramo|asignatura)\b|\bpor (curiosidad|gusto|interes)\b|\bya tengo (las )?bases( previas)?\b|\bcon bases( previas)?\b|\bme cuesta( entender| comprender)?\b|\bno entiendo\b|\bestoy perdid[oa]( en)?\b|\btengo dificultad(es)?( con| en)?\b|\bsoy nuev[oa]( en)?\b|\brecien (entro|ingrese|parto|empiezo)\b|\bprimer (ano|semestre)\b/g;
+function newAgent() {
+  return { topic: null, sub: null, courseSel: null, pending: null, opts: [], progInfo: { nCourses: 0, missing: [], loaded: false }, purpose: null, empathy: false, k: 3, p: { level: null, ex: false, recent: false, lang: null, avail: false, thesis: false }, shown: new Set(), excluded: new Set(), exAuthors: new Set(), last: [], focus: null, asked: new Set(), reasons: new Map(), turn: 0 };
+}
+let AG = newAgent();
+const rot = arr => arr[AG.turn++ % arr.length];
+
+/* ---------- utilidades ---------- */
+const ES_SW = new Set("de la el los las del y para con una un por sobre al su en que como".split(" "));
+const EN_SW = new Set("the of and to for with an in on its by from at or their".split(" "));
+function langOf(title) {
+  const n = norm(title); let es = 0, en = 0;
+  for (const w of n.split(" ")) {
+    if (ES_SW.has(w)) es += 2; if (EN_SW.has(w)) en += 2;
+    const s = stem(w);
+    if (GL_ES_ONLY.has(s)) es += 1; if (GL_EN_ONLY.has(s)) en += 1;
+  }
+  if (/[áéíóúñ¿¡]/i.test(title)) es += 2;
+  return es > en ? "es" : en > es ? "en" : "?";
+}
+function levelOf(r) {
+  const t = r.n.t;
+  if (/tesis/.test(norm(r.type))) return "tesis";
+  if (/avanzad|advanced|topicos|topics|monograf|lecture notes|graduate|posgrado/.test(t)) return "avanzado";
+  if (/introduc|fundamento|elemental|elementos de|basic|primer curso|iniciac|principios de|preuniversit|nociones|principiantes/.test(t)) return "introductorio";
+  return "general";
+}
+const isExercises = r => /problemas|ejercicios|schaum|problems|exercises|practic/.test(r.n.t);
+function addMsg(role, html) {
+  const d = document.createElement("div");
+  d.className = "msg " + role; d.innerHTML = html;
+  $("#chat").appendChild(d);
+  d.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+function classFacets(recs) {
+  const m = new Map();
+  for (const r of recs) m.set(r.class3, (m.get(r.class3) || 0) + 1);
+  return [...m.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => ({ k, n, name: k === "Otras" ? "sin Dewey" : (DEWEY3[k] || DEWEY_MAIN[k[0]] || "") }));
+}
+const chipsHTML = list => list.length ? `<div class="chips">${list.map(([label, text]) => `<button type="button" class="chip" data-ask="${esc(text)}">${esc(label)}</button>`).join("")}</div>` : "";
+function areaChips() {
+  const rows = CONCEPTS.map(c => ({ c, n: DATA.records.filter(r => r.biblio && r.dewey && c.dewey.some(d => r.dewey.startsWith(d))).length })).filter(x => x.n > 0).sort((a, b) => b.n - a.n).slice(0, 6);
+  if (rows.length >= 3) return rows.map(x => [x.c.label, x.c.label]);
+  return classFacets(DATA.records.filter(r => r.biblio)).filter(f => f.name && f.name !== "sin Dewey").slice(0, 6).map(f => [f.name, f.name]);
+}
+function topicLabel(text, topicSet, concepts) {
+  const raw = text.replace(/[?¿!¡.,;:]/g, " ").split(/\s+/).filter(Boolean);
+  const keep = raw.map(w => topicSet.has(norm(w)));
+  const out = [];
+  raw.forEach((w, i) => {
+    if (keep[i]) out.push(w);
+    else if (/^(de|del|la|el|las|los|y|en)$/i.test(w) && out.length && keep.slice(i + 1).some(Boolean)) out.push(w);
+  });
+  return out.join(" ") || (concepts[0] ? concepts[0].label : text.trim());
+}
+
+/* ---------- comprensión ---------- */
+function refIndex(qn) {
+  const ord = { primero: 1, primer: 1, segundo: 2, tercero: 3, tercer: 3, cuarto: 4, quinto: 5, ultimo: AG.last.length, ultima: AG.last.length };
+  const ws = qn.split(" ");
+  for (let k = 0; k < ws.length; k++) if (ord[ws[k]] && ws[k + 1] !== "orden") return ord[ws[k]];
+  const m = qn.match(/\b(?:el|la|libro|numero|n|opcion)\s*(\d)\b/) || qn.match(/^(\d)$/);
+  return m ? +m[1] : null;
+}
+function nlu(text) {
+  const qn = norm(text), words = qn.split(" ").filter(Boolean), i = {};
+  for (const k of Object.keys(RX)) i[k] = RX[k].test(qn);
+  if (i.research) i.thesisDocs = false;
+  const qt = qn.replace(PURPOSE_STRIP, " ").replace(/\s+/g, " ").trim();
+  const keepOrd = (w, k, arr) => (/^(primer|segundo|tercer)$/.test(w) && arr[k + 1] === "orden") || (w === "orden" && /^(primer|segundo|tercer)$/.test(arr[k - 1] || ""));
+  const topicWords = qt.split(" ").filter(Boolean).filter((w, k, arr) => keepOrd(w, k, arr) || (!STOP_ASSIST.has(w) && !META_STOP.has(w) && !INTENT_STEMS.has(stem(w)) && !/^\d+$/.test(w)));
+  const concepts = matchConcepts(qt);
+  return { text, qn, i, intro: hasAny(qn.replace(/\b(primer|segundo|tercer) orden\b/g, " "), INTRO_Q), adv: hasAny(qn, ADV_Q), ex: hasAny(qn, EX_Q), topicWords, concepts, hasTopic: topicWords.length > 0 || concepts.length > 0, ref: refIndex(qn), k: (qn.match(/\b(\d{1,2}) (libros?|titulos?|opciones|recomendaciones)\b/) || [])[1] };
+}
+function applyProfile(n) {
+  const p = AG.p, before = JSON.stringify(p), notes = [], was = describeProfile();
+  if (n.intro || n.i.curious || n.i.tooHard || n.i.struggle || n.i.firstYear) p.level = "intro";
+  if (n.i.exam) AG.purpose = "exam"; else if (n.i.research) AG.purpose = "research"; else if (n.i.curious) AG.purpose = "curious"; else if (n.i.teach) AG.purpose = "teach"; else if (n.i.course) AG.purpose = "course";
+  if (n.i.struggle) AG.empathy = true;
+  if ((n.adv || n.i.research || n.i.tooEasy) && !(n.intro && !n.adv)) p.level = "adv";
+  if (n.ex || n.i.exam) p.ex = true;
+  if (n.i.recent) p.recent = true;
+  if (n.i.es) p.lang = "es"; else if (n.i.en) p.lang = "en";
+  if (n.i.anyAvail) p.avail = false; else if (n.i.avail && !n.i.detail) p.avail = true;
+  if (n.i.thesisDocs) p.thesis = true;
+  if (JSON.stringify(p) !== before) notes.push(...describeProfile().filter(x => !was.includes(x)));
+  return notes;
+}
+function describeProfile() {
+  const p = AG.p, out = [];
+  if (p.level === "intro") out.push("nivel para empezar");
+  if (p.level === "adv") out.push("nivel avanzado");
+  if (p.ex) out.push("con ejercicios");
+  if (p.recent) out.push("priorizando los más recientes");
+  if (p.lang === "es") out.push("solo en español"); if (p.lang === "en") out.push("solo en inglés");
+  if (p.avail) out.push("solo con ejemplares disponibles");
+  if (p.thesis) out.push("incluyendo tesis");
+  return out;
+}
+const activeFilters = () => describeProfile();
+
+/* ---------- búsqueda y ranking ---------- */
+function rankTopic(topic) {
+  const toks = topic.toks, W = toks.map(tokWeight), p = AG.p, qn = norm(topic.orig.join(" ")), alts = p.lang === "es" ? null : expandTokens(topic.orig, topic.toks);
+  const out = [];
+  for (const r of DATA.records) {
+    if (!r.biblio) continue;
+    if (!p.thesis && /tesis/.test(norm(r.type))) continue;
+    if (AG.excluded.has(r.uid)) continue;
+    if (p.avail && r.availKnown && r.avail === 0) continue;
+    if (p.lang === "es" && r.lang === "en") continue;
+    if (p.lang === "en" && r.lang === "es") continue;
+    if (AG.exAuthors.size && r.n.a && AG.exAuthors.has(r.n.a)) continue;
+    const s = scoreRec(r, toks, topic.orig, W, qn, alts);
+    const cb = conceptBoost(r, topic.concepts);
+    if (s.hits === 0 && cb.score < 3) continue;
+    let score = s.score + cb.score;
+    if (toks.length > 1 && s.hits === toks.length) score += 6;
+    const lv = levelOf(r);
+    if (p.level === "intro") score += lv === "introductorio" ? 4 : lv === "avanzado" ? -4 : 0;
+    if (p.level === "adv") score += lv === "avanzado" ? 4 : lv === "introductorio" ? -3 : 0;
+    if (p.ex && isExercises(r)) score += 4;
+    if (p.recent && r.year) score += r.year >= 2010 ? 3 : r.year >= 2000 ? 1.5 : 0;
+    if (r.avail > 0) score += 1;
+    if (score <= 0) continue;
+    out.push({ r, score, s, cb, lv });
+  }
+  out.sort((a, b) => b.score - a.score);
+  return out;
+}
+
+/* ---------- bibliografía de programas ---------- */
+const hasTok = (text, tk) => (" " + text).includes(" " + tk);
+function courseRel(c, toks) {
+  let nameHit = 0, contHit = 0;
+  for (const tk of toks) { if (hasTok(c.n.name, tk)) nameHit++; else if (hasTok(c.n.cont, tk)) contHit++; }
+  const need = Math.max(1, toks.length - (toks.length >= 4 ? 1 : 0));
+  return { nameHit, contHit, ok: toks.length > 0 && nameHit + contHit >= need, rel: toks.length ? (nameHit + 0.5 * contHit) / toks.length : 0 };
+}
+function relatedCourses(toks) {
+  const all = COURSES.map(c => ({ c, cr: courseRel(c, toks) })).filter(x => x.cr.ok);
+  const byName = all.filter(x => x.cr.nameHit === toks.length);
+  return (byName.length ? byName : all).sort((a, b) => b.cr.rel - a.cr.rel || a.c.name.localeCompare(b.c.name));
+}
+function profileOk(r) {
+  const p = AG.p;
+  if (!r.biblio) return false;
+  if (!p.thesis && /tesis/.test(norm(r.type))) return false;
+  if (AG.excluded.has(r.uid)) return false;
+  if (p.avail && r.availKnown && r.avail === 0) return false;
+  if (p.lang === "es" && r.lang === "en") return false;
+  if (p.lang === "en" && r.lang === "es") return false;
+  if (AG.exAuthors.size && r.n.a && AG.exAuthors.has(r.n.a)) return false;
+  return true;
+}
+const TIER_OF = { "obligatoria": 1, "complementaria": 2, "sin categoría": 2 };
+function progCandidates(t, catMap) {
+  const toks = t.base.toks, subToks = t.sub ? t.sub.toks : [], p = AG.p;
+  const byUid = new Map(), missing = new Map(); let nCourses = 0;
+  const W = t.toks.map(tokWeight);
+  for (const c of COURSES) {
+    if (AG.courseSel && c.key !== AG.courseSel) continue;
+    const cr = courseRel(c, toks);
+    if (cr.ok) nCourses++;
+    for (const e of c.entries) {
+      const nt = norm(e.title);
+      let titleAll = false;
+      if (!cr.ok) {
+        if (e.rec) { const s0 = scoreRec(e.rec, toks, t.base.orig, toks.map(tokWeight), "", XL.on ? expandTokens(t.base.orig, toks) : null); titleAll = toks.length > 0 && s0.hits === toks.length; }
+        else titleAll = toks.length > 0 && toks.every(tk => hasTok(nt, tk));
+        if (!titleAll) continue;
+      }
+      let rel = cr.ok ? 1 : 0.6;
+      if (subToks.length) { const txt = nt + " " + c.n.cont; rel += 0.5 * subToks.filter(tk => hasTok(txt, tk)).length / subToks.length; }
+      if (!e.rec) { if (e.cat === "obligatoria") missing.set(norm(e.title), e); continue; }
+      const r = e.rec;
+      if (!profileOk(r)) continue;
+      let o = byUid.get(r.uid);
+      if (!o) { o = { r, progs: [], rel: 0, courses: new Set() }; byUid.set(r.uid, o); }
+      o.progs.push({ cat: e.cat, course: c, entry: e, related: cr.ok });
+      o.rel = Math.max(o.rel, rel) + (o.courses.has(c.key) ? 0 : 0.3);
+      o.courses.add(c.key);
+    }
+  }
+  const cands = [];
+  for (const o of byUid.values()) {
+    const base = catMap.get(o.r.uid);
+    const s = base ? base.s : scoreRec(o.r, t.toks, t.orig, W, norm(t.orig.join(" ")), p.lang === "es" ? null : expandTokens(t.orig, t.toks));
+    const cb = base ? base.cb : conceptBoost(o.r, t.concepts);
+    const lv = levelOf(o.r);
+    let score = o.rel * 10 + Math.min(base ? base.score : s.score + cb.score, 15) * 0.3;
+    if (p.level === "intro") score += (lv === "introductorio" ? 2 : lv === "avanzado" ? -2 : 0);
+    if (p.level === "adv") score += (lv === "avanzado" ? 2 : lv === "introductorio" ? -1.5 : 0);
+    const lvls = o.progs.map(x => x.course.level).filter(x => x != null);
+    if (lvls.length) { const m = Math.min(...lvls); score += p.level === "intro" ? (8 - m) * 0.25 : p.level === "adv" ? (m - 1) * 0.25 : 0; }
+    if (p.ex && isExercises(o.r)) score += 3;
+    if (p.recent && o.r.year) score += o.r.year >= 2010 ? 2 : o.r.year >= 2000 ? 1 : 0;
+    if (o.r.avail > 0) score += 1;
+    const tier = Math.min(...o.progs.map(x => TIER_OF[x.cat]));
+    cands.push({ r: o.r, tier, score, s, cb, lv, progs: o.progs });
+  }
+  return { cands, missing: [...missing.values()], nCourses };
+}
+function rankAll(t) {
+  const catPool = rankTopic(t);
+  const catMap = new Map(catPool.map(c => [c.r.uid, c]));
+  const prog = COURSES.length && DATA ? progCandidates(t, catMap) : { cands: [], missing: [], nCourses: 0 };
+  const used = new Set(prog.cands.map(c => c.r.uid));
+  const rest = catPool.filter(c => !used.has(c.r.uid)).map(c => ({ ...c, tier: 3, progs: [] }));
+  prog.cands.sort((a, b) => a.tier - b.tier || b.score - a.score);
+  AG.progInfo = { nCourses: prog.nCourses, missing: prog.missing, loaded: COURSES.length > 0 };
+  return prog.cands.concat(rest);
+}
+function progReasons(c) {
+  const t = AG.topic, out = [], lab = t.base.label;
+  if (c.tier === 1) out.push("Prioridad: es bibliografía obligatoria de una asignatura" + (c.progs.some(p => p.related) ? " que trata «" + lab + "»" : " (el título coincide con «" + lab + "»)"));
+  else if (c.tier === 2) out.push("Bibliografía " + (c.progs.some(p => p.cat === "complementaria") ? "complementaria" : "indicada en el programa (sin categoría)") + " de una asignatura" + (c.progs.some(p => p.related) ? " que trata «" + lab + "»" : " (el título coincide con «" + lab + "»)"));
+  else if (COURSES.length) out.push("No figura en los programas cargados; lo propongo por su coincidencia con el tema");
+  if (t.sub && c.progs.length && c.progs.some(p => t.sub.toks.some(tk => hasTok(norm(p.entry.title) + " " + p.course.n.cont, tk)))) out.push("Se relaciona con «" + t.sub.label + "»");
+  c.progs.forEach(p => { if (p.entry.note) out.push("Ojo: " + p.entry.note); });
+  if (c.progs.some(p => p.entry.synthetic)) out.push("El catálogo lo asocia al código de la asignatura (no figura como obligatoria ni complementaria)");
+  if (c.progs.some(p => p.entry.how === "referencia (aproximada)")) out.push("Coincidencia aproximada con la referencia del programa: conviene verificar la edición");
+  return out.concat(reasonsFor(c));
+}
+const TIER_LABEL = { 1: "Bibliografía obligatoria", 2: "Bibliografía complementaria", 3: "Otros recursos del catálogo" };
+function pickDistinct(pool, k) {
+  const picks = [], seen = new Set(), perAuthor = new Map();
+  for (const c of pool) {
+    const key = c.r.n.t + "|" + c.r.n.a;
+    if (seen.has(key)) continue;
+    const au = c.r.n.a;
+    if (au && (perAuthor.get(au) || 0) >= 2) continue;
+    seen.add(key); perAuthor.set(au, (perAuthor.get(au) || 0) + 1);
+    picks.push(c);
+    if (picks.length >= k) break;
+  }
+  return picks;
+}
+function reasonsFor(c) {
+  const out = [];
+  if (c.s && c.s.why.t.length) out.push("En el título aparece: " + [...new Set(c.s.why.t)].join(", "));
+  if (c.s && c.s.why.s.length) out.push("Descriptores: " + [...new Set(c.s.why.s)].join(", "));
+  if (c.s && c.s.why.a.length) out.push("Autor: " + [...new Set(c.s.why.a)].join(", "));
+  if (c.cb && c.cb.labels.length) out.push("Tema: " + c.cb.labels.join(", "));
+  if (c.r.dewey) out.push("Clase " + c.r.dewey + " · " + c.r.topic);
+  if (c.lv && c.lv !== "general") out.push("Nivel estimado por el título: " + c.lv);
+  if (isExercises(c.r)) out.push("Con ejercicios o problemas (según el título)");
+  return out;
+}
+function remember(picks) {
+  picks.forEach(c => { AG.shown.add(c.r.uid); AG.reasons.set(c.r.uid, c.why || reasonsFor(c)); });
+  AG.last = picks.map(c => c.r); AG.focus = AG.last[0] || null;
+}
+function cardsHTML(picks) {
+  let out = "", last = 0;
+  picks.forEach((c, i) => {
+    if (c.tier && COURSES.length && c.tier !== last) { out += `<h3 class="step">${TIER_LABEL[c.tier]}</h3>`; last = c.tier; }
+    out += cardHTML(c.r, { rank: i + 1, reasons: c.why || reasonsFor(c) });
+  });
+  return out;
+}
+
+/* ---------- respuestas ---------- */
+function openingReply(prefix) {
+  return `<p>${prefix ? esc(prefix) + " " : ""}Puedo recomendarte libros según lo que quieras estudiar, ayudarte a ubicarlos en la estantería y armarte una ruta de lectura. ¿Qué te gustaría estudiar?</p>` + chipsHTML(areaChips());
+}
+function helpReply() {
+  return `<p>Esto puedo hacer:</p><ul><li>Recomendarte títulos priorizando la bibliografía obligatoria de las asignaturas (si cargaste los programas): «necesito estudiar ecuaciones diferenciales». Te haré una o dos preguntas para afinar.</li><li>Compararlos: «explícame las diferencias entre estos títulos».</li><li>Ajustarme a ti: «para empezar», «con ejercicios», «más recientes», «solo disponibles», «en español».</li><li>Seguir la conversación: «más opciones», «más fácil», «otro autor», «más como el 2».</li><li>Decirte dónde está un libro: «¿dónde está el 1?».</li><li>Armarte una ruta de lectura: «arma una ruta para álgebra lineal».</li></ul>`
+    + `<p class="why">Solo recomiendo lo que está en los archivos cargados. El nivel lo estimo por el título, así que es orientativo.</p>` + chipsHTML(areaChips().slice(0, 4));
+}
+function noResults() {
+  const act = activeFilters();
+  const chips = [];
+  if (act.length) chips.push(["Quitar mis preferencias", "quitar filtros"]);
+  chips.push(...areaChips().slice(0, 4));
+  return `<p>No encontré títulos sobre «${esc(AG.topic.label)}»${act.length ? " con tus preferencias (" + esc(act.join(", ")) + ")" : ""} en las colecciones cargadas, y no voy a inventar referencias.${act.length ? " Puede que mis filtros sean muy estrictos." : " Prueba con otras palabras o con un tema más amplio."}</p>` + chipsHTML(chips);
+}
+function defaultChips(t) {
+  const p = AG.p, c = [["Más opciones", "más opciones"]];
+  if (p.level !== "intro") c.push(["Algo más básico", "algo más básico"]);
+  if (p.level !== "adv") c.push(["Algo más avanzado", "algo más avanzado"]);
+  if (!p.ex) c.push(["Con ejercicios", "con ejercicios"]);
+  c.push(["Ruta de lectura", "arma una ruta de lectura"]);
+  return c.slice(0, 5);
+}
+function expText(t) {
+  if (AG.p.lang === "es") return "";
+  return expLabel(t.orig, expandTokens(t.orig, t.toks)).join(", ");
+}
+function respondTopic(opt = {}) {
+  const t = AG.topic, p = AG.p;
+  const pool = rankAll(t);
+  if (!pool.length) return noResults();
+  const fresh = pool.filter(c => !AG.shown.has(c.r.uid));
+  const picks = pickDistinct(fresh, AG.k);
+  if (!picks.length) {
+    return `<p>Ya te mostré los ${AG.shown.size} títulos más cercanos a «${esc(t.label)}». Puedo cambiar el enfoque (más básico o más avanzado), quitar preferencias o pasar a otro tema.</p>` + chipsHTML([["Quitar mis preferencias", "quitar filtros"], ["Algo más básico", "algo más básico"], ["Algo más avanzado", "algo más avanzado"], ["Cambiar de tema", "cambiar de tema"]]);
+  }
+  picks.forEach(c => { c.why = progReasons(c); });
+  const nOb = pool.filter(c => c.tier === 1).length, nCo = pool.filter(c => c.tier === 2).length, nCat = pool.filter(c => c.tier === 3).length;
+  const nAll = pool.filter(c => c.s && t.toks.length && c.s.hits === t.toks.length).length;
+  const nLex = pool.filter(c => c.s && c.s.hits > 0).length;
+  remember(picks);
+  let lead;
+  if (opt.more) lead = rot(["Aquí van otros " + picks.length + ":", "Sigamos con " + (picks.length === 1 ? "este:" : "estos " + picks.length + ":"), "Otras opciones cercanas:"]);
+  else if (opt.notes && opt.notes.length) lead = `Anotado: ${esc(opt.notes.join(", "))}. Con eso, mis mejores opciones son:`;
+  else if (opt.fresh) {
+    const bits = [];
+    if (AG.courseSel) { const c = COURSES.find(x => x.key === AG.courseSel); if (c) bits.push("asignatura " + courseLabel(c)); }
+    if (AG.sub) bits.push(AG.sub.label);
+    const prof = describeProfile();
+    const tag = [...bits, ...prof].join(", ");
+    let found;
+    if (!COURSES.length) found = nAll ? `${fmt(nAll)} ${nAll === 1 ? "título" : "títulos"} con ${t.base.toks.length > 1 ? "todos esos términos" : "ese término"}` : nLex ? `${fmt(nLex)} ${nLex === 1 ? "título" : "títulos"} con alguno de esos términos` : `${fmt(pool.length)} títulos en las clases Dewey relacionadas`;
+    else if (nOb) found = `${plural(nOb, "título", "títulos")} de bibliografía obligatoria en ${plural(AG.progInfo.nCourses || 1, "asignatura relacionada", "asignaturas relacionadas")}` + (nCo ? `, ${nCo} de bibliografía complementaria` : "") + (nCat ? ` y ${nCat} recursos más en el catálogo` : "");
+    else found = `no encontré bibliografía obligatoria relacionada en los programas cargados` + (nCo ? `, aunque sí ${plural(nCo, "título", "títulos")} de bibliografía complementaria` : "") + (nCat ? `; estas son las mejores alternativas del catálogo` : "");
+    lead = (AG.empathy ? "Te entiendo, partamos por lo más accesible. " : "") + `Sobre «${esc(t.base.label)}»${tag ? " (" + esc(tag) + ")" : ""}: ${COURSES.length && !nOb ? "" : "encontré "}${found}. Para partir te recomiendo:`;
+    AG.empathy = false;
+  } else lead = "Mis mejores opciones ahora:";
+  let html = `<p>${lead}</p>` + cardsHTML(picks);
+  const exp = expText(t), enCount = picks.filter(c => c.r.lang === "en").length;
+  if (exp && (opt.fresh || opt.notes)) html += `<p class="why">También busqué equivalentes en inglés (${esc(exp)})${enCount ? "; " + enCount + (enCount === 1 ? " de estos títulos está" : " de estos títulos están") + " en inglés" : ""}. Si prefieres solo español, actívalo en «Preferencias».</p>`;
+  const miss = AG.progInfo.missing;
+  if (miss.length && (opt.fresh || opt.notes)) html += `<p class="why">Bibliografía obligatoria de estas asignaturas que no encontré en el catálogo cargado: ${miss.slice(0, 3).map(m => "«" + esc(m.title) + "»" + (m.author ? " (" + esc(m.author) + ")" : "")).join("; ")}${miss.length > 3 ? " y " + (miss.length - 3) + " más" : ""}. No puedo confirmar si la biblioteca los tiene.</p>`;
+  if ((opt.fresh || opt.notes) && !AG.asked.has("note")) {
+    AG.asked.add("note");
+    html += `<p class="why">${COURSES.length ? "" : "Aún no hay bibliografías de programas cargadas: por ahora recomiendo solo con el catálogo. "}La disponibilidad es la de los archivos cargados, no una consulta en línea a Koha.</p>`;
+  }
+  const remaining = fresh.length - picks.length;
+  const ch = defaultChips(t); if (picks.length > 1) ch.splice(1, 0, ["Comparar estos títulos", "explícame las diferencias entre estos títulos"]);
+  html += chipsHTML(ch.slice(0, 6)) + `<div class="chips"><button type="button" class="chip" data-open="${esc(t.orig.join(" "))}">Ver todo en el buscador</button></div>`;
+  if (remaining <= 0) html += `<p class="why">Esos eran los títulos más cercanos que tengo.</p>`;
+  return html;
+}
+
+/* ---------- preguntas de seguimiento ---------- */
+const ANY = /^(no se|ni idea|en general|todo|todos|todo el tema|cualquiera|da igual|no estoy segur[oa]|nada en particular|ninguna|ninguno|solo el tema|el tema en general|ok|dale|si|no)\b/;
+const hasIntent = n => !!(n.intro || n.adv || n.ex || n.i.exam || n.i.research || n.i.curious || n.i.teach || n.i.course || n.i.firstYear || n.i.struggle || n.i.tooHard || n.i.tooEasy);
+const sigToks = (label, base) => norm(label).split(" ").filter(w => w.length > 2 && !STOP_ASSIST.has(w)).map(stem).filter(tk => !base.includes(tk));
+function unitOptions(c) {
+  const base = AG.topic.base.toks, out = [], seen = new Set();
+  for (const u of c.units) {
+    let label = u.replace(/^\s*(unidad|modulo|módulo|capitulo|capítulo|tema)\s*\w*\s*[:.\-–]\s*/i, "").trim();
+    if (label.length > 70) label = label.slice(0, 67).replace(/\s+\S*$/, "") + "…";
+    const toks = sigToks(label, base).slice(0, 5);
+    if (!label || !toks.length || seen.has(norm(label))) continue;
+    seen.add(norm(label)); out.push({ label, toks, orig: norm(label).split(" ").filter(w => w.length > 2 && !STOP_ASSIST.has(w) && !base.includes(stem(w))).slice(0, 5) });
+  }
+  return out.slice(0, 6);
+}
+function dictOptions(t) {
+  const base = t.base;
+  for (const c of t.concepts) {
+    const list = SUBTOPICS[c.label]; if (!list) continue;
+    if (!base.toks.every(tk => c.tNorm.some(term => term.split(" ").includes(tk)))) continue;
+    const labTok = norm(c.label).split(" ").map(stem);
+    if (!base.toks.some(tk => labTok.includes(tk))) continue;
+    return list.map(([label, terms]) => ({ label, orig: terms.split(" "), toks: terms.split(" ").map(stem).filter(tk => !base.toks.includes(tk)) }));
+  }
+  return null;
+}
+function nextQuestion(pre = "") {
+  const t = AG.topic, p = AG.p, base = t.base;
+  if (!AG.asked.has("scope") && !AG.sub && !AG.courseSel) {
+    const rel = COURSES.length ? relatedCourses(base.toks) : [];
+    let opts = null, kind = null;
+    if (rel.length >= 2) { kind = "course"; opts = rel.slice(0, 5).map(x => ({ label: courseLabel(x.c), course: x.c.key, toks: sigToks(courseLabel(x.c), base.toks) })); }
+    else {
+      const units = rel.length === 1 ? unitOptions(rel[0].c) : [];
+      if (units.length >= 2) { kind = "scope"; opts = units; }
+      else { const d = dictOptions(t); if (d) { kind = "scope"; opts = d; } }
+    }
+    if (opts && opts.length) {
+      AG.asked.add("scope"); AG.pending = kind; AG.opts = opts;
+      const chips = opts.map(o => [o.label, o.label]);
+      if (kind === "course") return `<p>${esc(pre)}En los programas cargados encontré ${rel.length} asignaturas relacionadas con «${esc(base.label)}». ¿Estás cursando alguna de estas?</p>` + chipsHTML(chips.concat([["Ninguna, el tema en general", "en general"]]));
+      return `<p>${esc(pre)}Para afinar: ¿qué contenidos estás revisando ahora? Elige uno o escríbelo con tus palabras.</p>` + chipsHTML(chips.concat([["No estoy seguro", "no sé, en general"]]));
+    }
+  }
+  if (!AG.asked.has("need") && !p.level && !p.ex && !AG.purpose) {
+    AG.asked.add("need"); AG.pending = "need";
+    return `<p>${esc(pre)}¿Qué necesitas principalmente: una explicación introductoria, ejercicios resueltos o material para profundizar? Si quieres, dime también tu nivel (primer año, curso avanzado, magíster).</p>` + chipsHTML([["Algo introductorio", "quiero algo introductorio para empezar"], ["Ejercicios resueltos", "con ejercicios resueltos"], ["Profundizar", "quiero profundizar, nivel avanzado"], ["Preparar una prueba", "es para una prueba"]]);
+  }
+  return "";
+}
+function applySub(sub) {
+  const t = AG.topic; AG.sub = sub; t.sub = sub;
+  t.orig = t.base.orig.concat(sub.orig.filter(w => !t.base.orig.includes(w)));
+  t.toks = t.orig.map(stem);
+  t.label = t.base.label + " (" + sub.label + ")";
+}
+function optMatch(qn) {
+  const base = AG.topic.base.toks;
+  const words = qn.split(" ").filter(w => w && !STOP_ASSIST.has(w)).map(stem).filter(s => !base.includes(s));
+  let best = null, bs = 0;
+  for (const o of AG.opts) {
+    if (norm(o.label) === qn) return o;
+    if (!o.toks.length) continue;
+    const sh = o.toks.filter(s => words.includes(s)).length, sc = sh / o.toks.length;
+    if (sh >= 1 && sc > bs) { bs = sc; best = o; }
+  }
+  return bs >= 0.5 ? best : null;
+}
+function freeSub(text, qn) {
+  const base = AG.topic.base.toks, ord = /\borden\b/.test(qn) ? new Set(["primer", "segundo", "tercer"]) : new Set();
+  const raw = text.replace(/[?¿!¡.,;:]/g, " ").split(/\s+/).filter(Boolean);
+  const kept = raw.filter(w => { const nw = norm(w); return nw && !/^\d+$/.test(nw) && !STOP_ASSIST.has(nw) && !base.includes(stem(nw)) && (ord.has(nw) || (!INTENT_STEMS.has(stem(nw)) && !META_STOP.has(nw))); });
+  if (!kept.length) return null;
+  const orig = kept.map(norm);
+  return { label: kept.join(" "), orig, toks: orig.map(stem) };
+}
+function afterAnswer(ack) {
+  const q = nextQuestion(ack);
+  if (q) return q;
+  AG.pending = null; AG.shown = new Set();
+  return respondTopic({ fresh: true, answered: true });
+}
+function handlePending(text, n) {
+  const pend = AG.pending, qn = n.qn;
+  if (n.i.now || n.i.more) { AG.pending = null; AG.asked.add("scope"); AG.asked.add("need"); AG.shown = new Set(); return respondTopic({ fresh: true, answered: true }); }
+  if (pend === "need") {
+    if (hasIntent(n) || ANY.test(qn) || !n.hasTopic) { applyProfile(n); if (AG.p.level === "adv") AG.empathy = false; AG.pending = null; return afterAnswer(""); }
+    AG.pending = null; return null;
+  }
+  let ack = "";
+  const opt = optMatch(qn);
+  if (opt) {
+    if (opt.course) { AG.courseSel = opt.course; ack = "Perfecto, me enfoco en " + opt.label + ". "; }
+    else { applySub({ label: opt.label, orig: opt.orig || [], toks: opt.toks }); ack = "Anotado: " + opt.label + ". "; }
+  } else if (ANY.test(qn) || (hasIntent(n) && !n.hasTopic)) ack = "De acuerdo, lo veo en general. ";
+  else if (n.hasTopic) {
+    const shareBase = qn.split(" ").some(w => AG.topic.base.toks.includes(stem(w)));
+    if (n.concepts.length && !n.concepts.some(c => AG.topic.concepts.includes(c)) && !shareBase) { AG.pending = null; return null; }
+    const sub = freeSub(text, qn);
+    if (sub) { applySub(sub); ack = "Anotado: " + sub.label + ". "; } else ack = "De acuerdo, lo veo en general. ";
+  } else ack = "De acuerdo. ";
+  AG.pending = null; AG.asked.add("scope");
+  if (hasIntent(n)) applyProfile(n);
+  if (AG.p.level === "adv") AG.empathy = false;
+  return afterAnswer(ack);
+}
+function compareReply() {
+  const L = AG.last;
+  if (L.length < 2) return `<p>Para comparar necesito haberte mostrado al menos dos títulos. Dime un tema y partimos.</p>` + chipsHTML(areaChips().slice(0, 4));
+  const info = L.map((r, i) => {
+    const bits = [], lv = levelOf(r);
+    const ob = r.progs.filter(p => p.cat === "obligatoria"), co = r.progs.filter(p => p.cat !== "obligatoria");
+    if (ob.length) bits.push("obligatoria en " + ob.slice(0, 2).map(p => courseLabel(p.course)).join(", "));
+    if (co.length) bits.push("complementaria en " + co.slice(0, 2).map(p => courseLabel(p.course)).join(", "));
+    if (!r.progs.length) bits.push(COURSES.length ? "no figura en los programas cargados" : "sin dato de programas");
+    if (lv !== "general") bits.push("nivel " + lv + " (según el título)");
+    if (isExercises(r)) bits.push("con ejercicios (según el título)");
+    if (r.lang === "en") bits.push("en inglés");
+    if (r.year) bits.push(String(r.year));
+    bits.push(!r.availKnown ? plural(r.copies, "ejemplar", "ejemplares") + " (estado no informado)" : r.copiesUnknown ? (r.avail ? plural(r.avail, "ejemplar disponible", "ejemplares disponibles") : "ninguno disponible") : r.avail + " de " + plural(r.copies, "ejemplar", "ejemplares") + " en estantería");
+    return { r, i: i + 1, lv, ob: ob.length > 0, bits };
+  });
+  let h = `<p>Esto es lo que distingue a los títulos que te mostré, según los datos del catálogo y de los programas:</p><ul>` + info.map(x => `<li><b>${x.i}. ${esc(x.r.title)}</b>: ${x.bits.map(esc).join("; ")}.</li>`).join("") + `</ul>`;
+  const pts = [], lst = a => a.map(x => x.i).join(", ");
+  const obs = info.filter(x => x.ob), nob = info.filter(x => !x.ob);
+  if (obs.length && nob.length) pts.push(`Si quieres lo que piden los programas, parte por ${obs.length > 1 ? "los títulos " : "el "}${lst(obs)} (obligatoria${obs.length > 1 ? "s" : ""}); ${nob.length > 1 ? "los títulos " : "el "}${lst(nob)} ${nob.length > 1 ? "sirven" : "sirve"} para complementar.`);
+  const yrs = info.filter(x => x.r.year); if (yrs.length > 1) { const mx = Math.max(...yrs.map(x => x.r.year)), mn = Math.min(...yrs.map(x => x.r.year)); if (mx !== mn) pts.push(`El más reciente es el ${lst(yrs.filter(x => x.r.year === mx))} (${mx}); el más antiguo, el ${lst(yrs.filter(x => x.r.year === mn))} (${mn}).`); }
+  const ex = info.filter(x => isExercises(x.r)); if (ex.length && ex.length < info.length) pts.push(`Por su título, ${ex.length > 1 ? "los títulos " : "el "}${lst(ex)} ${ex.length > 1 ? "parecen" : "parece"} orientado${ex.length > 1 ? "s" : ""} a ejercicios.`);
+  const intro = info.filter(x => x.lv === "introductorio"), adv = info.filter(x => x.lv === "avanzado");
+  if (intro.length && adv.length) pts.push(`Para empezar, el ${lst(intro)}; para profundizar, el ${lst(adv)}.`);
+  const av = info.filter(x => x.r.availKnown && x.r.avail > 0), noav = info.filter(x => x.r.availKnown && x.r.avail === 0);
+  if (av.length && noav.length) pts.push(`Ahora mismo ${noav.length > 1 ? "los títulos " : "el "}${lst(noav)} no ${noav.length > 1 ? "tienen" : "tiene"} ejemplares disponibles según el archivo cargado.`);
+  if (pts.length) h += `<p><b>En síntesis:</b></p><ul>${pts.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
+  return h + `<p class="why">No evalúo el contenido interno de los libros: solo comparo categoría, nivel y ejercicios (según el título), año, idioma y disponibilidad.</p>` + chipsHTML(defaultChips());
+}
+function detailReply(r) {
+  AG.focus = r;
+  const cut = (r.callno.match(/^\S+\s+([A-ZÑ]{2,4})\b/) || [])[1];
+  const ub = [...new Set(r.items.map(it => it.place).filter(Boolean).concat(r.places))];
+  const prestados = r.items.filter(it => /prestad/.test(norm(it.status))).length;
+  let h = `<p><b>${esc(r.title)}</b>${r.author ? " — " + esc(r.author) : ""}${r.year ? " (" + r.year + ")" : ""}.</p><ul>`;
+  h += `<li><b>Signatura:</b> ${r.callno ? esc(r.callno) + " · clase " + esc(r.dewey || "—") + " (" + esc(r.topic) + ")" : "sin clasificación Dewey"}.</li>`;
+  if (ub.length) h += `<li><b>Ubicación:</b> ${ub.map(esc).join(", ")}.</li>`;
+  h += `<li><b>Disponibilidad:</b> ${r.libNames.map(l => { const L = r.libs[l]; return esc(l) + ": " + (!L.availKnown ? plural(L.copies, "ejemplar", "ejemplares") : L.copiesUnknown ? (L.avail ? plural(L.avail, "ejemplar disponible", "ejemplares disponibles") : "ninguno disponible ahora") : L.avail + " de " + plural(L.copies, "ejemplar", "ejemplares") + " en estantería"); }).join(" · ")}${prestados ? " (" + prestados + " prestado" + (prestados > 1 ? "s" : "") + ")" : ""}.</li>`;
+  if (r.progs && r.progs.length) h += `<li><b>En los programas:</b> ${r.progs.map(p => (p.cat === "obligatoria" ? "obligatoria" : p.cat === "complementaria" ? "complementaria" : "bibliografía") + " en " + esc(courseLabel(p.course))).join("; ")}.</li>`;
+  else if (COURSES.length) h += `<li><b>En los programas:</b> no figura en las bibliografías cargadas.</li>`;
+  if (r.callno) h += `<li><b>Cómo encontrarlo:</b> ve a la sección ${esc(r.dewey)} y sigue el orden numérico${cut ? "; dentro de la misma clase se ordena por las letras del autor (" + esc(cut) + ")" : ""}.</li>`;
+  h += `</ul>`;
+  if (r.items.length) h += `<details class="items"><summary>Ver ejemplares (${r.items.length})</summary><ul>${r.items.slice(0, 12).map(it => `<li>${[it.lib, it.barcode, it.status, it.place].filter(Boolean).map(esc).join(" · ")}</li>`).join("")}</ul></details>`;
+  return h + chipsHTML([["Más como este", "más como este"], ["¿Por qué me lo recomendaste?", "¿por qué me lo recomendaste?"], ["Más opciones", "más opciones"]]);
+}
+function whyReply(r) {
+  const rs = AG.reasons.get(r.uid) || reasonsFor({ r, lv: levelOf(r) });
+  return `<p>Te sugerí «${esc(r.title)}» porque:</p><ul>${rs.map(x => `<li>${esc(x)}</li>`).join("")}</ul><p class="why">Es una coincidencia con lo que me pediste, no una valoración de calidad del libro.</p>`;
+}
+function similarReply(rec) {
+  AG.focus = rec;
+  const toks = norm(rec.title).split(" ").filter(w => w.length > 3 && !STOP_ASSIST.has(w)).map(stem).slice(0, 6);
+  const W = toks.map(tokWeight), p = AG.p, out = [];
+  for (const r of DATA.records) {
+    if (r.uid === rec.uid || !r.biblio || AG.excluded.has(r.uid) || AG.shown.has(r.uid)) continue;
+    if (!p.thesis && /tesis/.test(norm(r.type))) continue;
+    if (p.avail && r.availKnown && r.avail === 0) continue;
+    if (p.lang === "es" && r.lang === "en") continue;
+    if (p.lang === "en" && r.lang === "es") continue;
+    const why = []; let sc = 0;
+    if (r.class3 === rec.class3 && rec.dewey) sc += 3;
+    let pre = 0; while (pre < Math.min(r.dewey.length, rec.dewey.length) && r.dewey[pre] === rec.dewey[pre]) pre++;
+    if (rec.dewey && pre >= 5) { sc += pre * 0.5; why.push("Misma subclase Dewey (" + r.dewey.slice(0, pre) + ")"); } else if (r.class3 === rec.class3 && rec.dewey) why.push("Misma clase Dewey (" + r.class3 + " · " + r.topic + ")");
+    if (r.n.a && r.n.a === rec.n.a) { sc += 4; why.push("Mismo autor"); }
+    const shared = r.subjects.filter(s => rec.subjects.includes(s));
+    if (shared.length) { sc += Math.min(shared.length, 2) * 3; why.push("Descriptores en común: " + shared.slice(0, 2).join(", ")); }
+    const s = scoreRec(r, toks, toks, W, "");
+    if (s.hits) { sc += s.score * 0.6; if (s.why.t.length) why.push("Palabras en común en el título: " + [...new Set(s.why.t)].join(", ")); }
+    if (sc >= 4) out.push({ r, score: sc, why, lv: levelOf(r) });
+  }
+  out.sort((a, b) => b.score - a.score);
+  const picks = pickDistinct(out, 3);
+  if (!picks.length) return `<p>No encontré títulos parecidos a «${esc(rec.title)}» que no te haya mostrado ya.</p>` + chipsHTML(defaultChips());
+  remember(picks);
+  return `<p>Si te interesa «${esc(rec.title)}», estos son parecidos:</p>` + cardsHTML(picks) + chipsHTML(defaultChips());
+}
+function planReply(topic) {
+  const pool = rankAll(topic);
+  if (!pool.length) { AG.topic = topic; return noResults(); }
+  const used = new Set(), steps = [];
+  const take = (pred, title) => { const c = pool.find(x => !used.has(x.r.uid) && pred(x)); if (c) { used.add(c.r.uid); steps.push({ c, title }); } };
+  take(c => c.lv === "introductorio", "Para empezar") || null;
+  if (!steps.length) take(c => c.lv === "general", "Para empezar");
+  take(c => c.lv === "general", "Para afianzar");
+  take(c => c.lv === "avanzado", "Para profundizar");
+  if (steps.length < 3) take(c => c.lv === "general", "Para profundizar");
+  take(c => isExercises(c.r), "Para practicar");
+  if (!steps.length) return noResults();
+  const picks = steps.map(s => s.c);
+  picks.forEach(c => { c.why = progReasons(c); });
+  remember(picks);
+  const body = steps.map((s, i) => `<h3 class="step">${i + 1}. ${esc(s.title)}</h3>` + cardHTML(s.c.r, { reasons: s.c.why })).join("");
+  return `<p>Esta es una ruta de lectura para «${esc(topic.label)}», de lo más básico a lo más específico:</p>` + body
+    + `<p class="why">El orden se basa en el nivel que estimo por el título; si algún paso te queda corto o largo, dímelo y lo ajusto.</p>` + chipsHTML([["Algo más básico", "algo más básico"], ["Algo más avanzado", "algo más avanzado"], ["Cambiar de tema", "cambiar de tema"]]);
+}
+function setTopic(n, text) {
+  const set = new Set(n.topicWords);
+  const label = topicLabel(text.replace(FILLER, ""), set, n.concepts);
+  const concepts = n.concepts.slice();
+  if (n.i.teach) { const d = CONCEPTS.find(c => c.label.startsWith("Didáctica")); if (d && !concepts.includes(d)) concepts.push(d); }
+  const orig = n.topicWords, toks = orig.map(stem);
+  AG.topic = { label, orig: orig.slice(), toks: toks.slice(), concepts, sub: null, base: { label, orig: orig.slice(), toks: toks.slice() } };
+  AG.sub = null; AG.courseSel = null; AG.pending = null; AG.opts = [];
+  AG.shown = new Set(); AG.excluded = new Set(); AG.exAuthors = new Set(); AG.last = []; AG.focus = null; AG.asked = new Set(); AG.reasons = new Map();
+}
+
+/* ---------- orquestación ---------- */
+function agentRespond(text) {
+  const n = nlu(text);
+  AG.k = n.k ? Math.min(8, Math.max(1, +n.k)) : 3;
+  const refRec = (() => {
+    if (!AG.last.length && !AG.focus) return null;
+    if (n.ref != null) return AG.last[n.ref - 1] || null;
+    if (/\b(ese|esa|este|esta)\b/.test(n.qn) || n.i.detail || n.i.why || n.i.similar) return AG.focus || AG.last[0] || null;
+    return null;
+  })();
+  const before = JSON.stringify(AG.p);
+  if (n.i.reset) { const p = AG.p; AG = newAgent(); AG.p = Object.assign(p, { level: null, ex: false }); return openingReply("De acuerdo, cambiemos de tema."); }
+  if (n.i.clear) { AG.p = newAgent().p; AG.shown = new Set(); return AG.topic ? respondTopic({ notes: [] }).replace("Mis mejores opciones ahora:", "Quité tus preferencias. Mis mejores opciones ahora:") : openingReply("Listo, sin preferencias."); }
+  if (n.i.help && !n.hasTopic) return helpReply();
+  if (AG.pending && AG.topic) { const r = handlePending(text, n); if (r !== null) return r; }
+  if (n.i.compare && (!n.hasTopic || (AG.last.length >= 2 && /\b(estos|estas|esos|esas|titulos|libros)\b/.test(n.qn)))) return compareReply();
+  if (n.ref != null && !refRec && AG.last.length) return `<p>No tengo un título con ese número: en la última lista hay ${AG.last.length}.</p>`;
+  // seguimiento sobre lo mostrado
+  if (!n.hasTopic && AG.topic && (n.i.have || n.i.otherAuthor)) {
+    if (n.i.have && refRec) AG.excluded.add(refRec.uid); else if (n.i.have) AG.last.forEach(r => AG.excluded.add(r.uid));
+    if (n.i.otherAuthor) AG.last.forEach(r => r.n.a && AG.exAuthors.add(r.n.a));
+    const notes = applyProfile(n);
+    return respondTopic({ notes, more: !notes.length });
+  }
+  if (!n.hasTopic && (n.i.detail || n.i.why) && refRec) return n.i.why && !n.i.detail ? whyReply(refRec) : detailReply(refRec);
+  if (n.i.similar && refRec) return similarReply(refRec);
+  if (!n.hasTopic && !n.i.more && refRec && n.ref != null && !n.i.plan) return detailReply(refRec);
+  if (n.i.plan && (n.hasTopic || AG.topic)) {
+    applyProfile(n);
+    if (n.hasTopic) { setTopic(n, text); }
+    return planReply(AG.topic);
+  }
+  if (n.hasTopic) {
+    const notes = applyProfile(n);
+    setTopic(n, text);
+    AG.shown = new Set();
+    if (!n.i.now) { const q = nextQuestion((n.i.struggle ? "Te entiendo, vamos paso a paso. " : "Claro. ") + "Veamos «" + AG.topic.label + "». "); if (q) return q; }
+    return respondTopic({ fresh: true, pre: notes.length ? notes.join(", ") : "" });
+  }
+  const purposeBefore = AG.purpose;
+  const notes = applyProfile(n);
+  const changed = JSON.stringify(AG.p) !== before || AG.purpose !== purposeBefore || !!(n.i.exam || n.i.research || n.i.curious || n.i.teach || n.i.course);
+  if (AG.topic && (changed || n.i.tooHard || n.i.tooEasy)) { AG.shown = new Set(); return respondTopic({ notes: notes.length ? notes : describeProfile() }); }
+  if ((n.i.more || n.i.alt) && AG.topic) return respondTopic({ more: true });
+  if (n.i.thanks) return `<p>${rot(["Con gusto.", "Me alegra servir.", "¡A ti!"])} Si quieres, sigo con otro tema o te armo una ruta de lectura.</p>` + chipsHTML(AG.topic ? [["Ruta de lectura", "arma una ruta de lectura"], ["Cambiar de tema", "cambiar de tema"]] : areaChips().slice(0, 4));
+  if (n.i.greet) return openingReply("Hola.");
+  return `<p>No estoy seguro de haber entendido. Dime un tema (por ejemplo «ecuaciones diferenciales» o «probabilidad») o pídeme «ayuda» para ver qué puedo hacer.</p>` + chipsHTML(areaChips().slice(0, 4));
+}
+function agentStart() {
+  AG = newAgent();
+  $("#chat").innerHTML = "";
+  addMsg("bot", openingReply("Hola, soy el asistente del catálogo.") + (COURSES.length ? `<p class="why">Tengo cargada la bibliografía de ${plural(PSTAT.courses, "asignatura", "asignaturas")} (${fmt(PSTAT.matched)} de ${fmt(PSTAT.entries)} títulos están en el catálogo): la consulto primero y priorizo la obligatoria.</p>` : ""));
+  renderProfile();
+}
+function agentCatalogChanged() {
+  const p = AG.p; AG = newAgent(); AG.p = p;
+  addMsg("bot", `<p>Actualicé los datos: ${fmt(DATA.records.length)} registros${COURSES.length ? " y bibliografía de " + plural(PSTAT.courses, "asignatura", "asignaturas") + " (" + fmt(PSTAT.matched) + " de " + fmt(PSTAT.entries) + " títulos están en el catálogo)" : ""}. Si estábamos en un tema, vuelve a pedírmelo para que lo busque con los datos nuevos.</p>`);
+}
+const PF = [["intro", "Para empezar"], ["adv", "Con bases previas"], ["ex", "Con ejercicios"], ["recent", "Más recientes"], ["es", "Solo en español"], ["en", "Solo en inglés"], ["avail", "Solo disponibles"], ["thesis", "Incluir tesis"]];
+function pfOn(k) { const p = AG.p; return k === "intro" ? p.level === "intro" : k === "adv" ? p.level === "adv" : k === "es" ? p.lang === "es" : k === "en" ? p.lang === "en" : !!p[k]; }
+function renderProfile() {
+  $("#agentProfile").innerHTML = `<span class="pflabel">Preferencias:</span>` + PF.map(([k, l]) => `<button type="button" class="chip" data-pf="${k}" aria-pressed="${pfOn(k)}">${l}</button>`).join("");
+}
+function toggleProfile(k) {
+  const p = AG.p, was = describeProfile();
+  if (k === "intro") p.level = p.level === "intro" ? null : "intro";
+  else if (k === "adv") p.level = p.level === "adv" ? null : "adv";
+  else if (k === "es") p.lang = p.lang === "es" ? null : "es";
+  else if (k === "en") p.lang = p.lang === "en" ? null : "en";
+  else p[k] = !p[k];
+  renderProfile();
+  if (AG.topic) { AG.shown = new Set(); const d = describeProfile().filter(x => !was.includes(x)); addMsg("bot", respondTopic({ notes: d.length ? d : ["preferencias actualizadas"] })); }
+}
+
+/* ============ Exportaciones ============ */
+function download(name, mime, content) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function exportCsv() {
+  const cell = v => { v = v == null ? "" : String(v); return /[";\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const head = ["titulo", "autor", "año", "editorial", "isbn", "signatura", "tipo", "coleccion", "ubicacion", "idioma", "bibliotecas", "ejemplares", "en_estanteria", "por_biblioteca", "descriptores", "bibliografia_programas"];
+  const lines = [head.join(";")].concat(CUR.rows.map(x => {
+    const r = x.r;
+    const per = r.libNames.map(l => { const L = r.libs[l]; return !L.availKnown ? `${l}: ${L.copies}` : L.copiesUnknown ? `${l}: ${L.avail} disp.` : `${l}: ${L.avail}/${L.copies}`; }).join(" | ");
+    return [r.title, r.author, r.year || "", r.publisher, r.isbn, r.callnos.map(c => c.callno).join(" | "), r.type, r.collections.join(" | "), r.places.join(" | "), ({ es: "español", en: "inglés" })[r.lang] || "", r.libNames.join(" | "), r.copiesUnknown ? "" : r.copies, r.availKnown ? r.avail : "", per, r.subjects.join(" | "), (r.progs || []).map(p => p.cat + ": " + courseLabel(p.course)).join(" | ")].map(cell).join(";");
+  }));
+  download("resultados_catalogo.csv", "text/csv;charset=utf-8", "\uFEFF" + lines.join("\r\n"));
+}
+function exportJson() {
+  const out = DATA.records.map(({ n, biblio, ...rest }) => rest);
+  download("catalogo.json", "application/json", JSON.stringify({ fuentes: SOURCES.map(s => s.name), generado: new Date().toISOString(), registros: out }, null, 1));
+}
+
+/* ============ Carga y arranque ============ */
+async function readSource(file) {
+  const buf = await file.arrayBuffer();
+  let text;
+  try { text = new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch (e) { text = new TextDecoder("windows-1252").decode(buf); }
+  const rows = parseCSV(text);
+  if (rows.length < 2) throw new Error(file.name + ": el archivo no tiene filas de datos.");
+  if (isProgHeader(rows)) return parseProg(rows, file.name, file.size);
+  return parseSource(rows, file.name, file.size);
+}
+function showErr(errs) {
+  const inApp = !$("#app").hidden;
+  $("#loadError").hidden = true; $("#srcError").hidden = true;
+  const el = inApp ? $("#srcError") : $("#loadError");
+  el.textContent = errs.join(" · "); el.hidden = !errs.length;
+}
+async function addFiles(files) {
+  const errs = []; const backup = SOURCES.slice(); let added = 0, progAdded = 0;
+  for (const f of files) {
+    try {
+      const src = await readSource(f);
+      if (src.kind === "prog") {
+        const i = PROGS.findIndex(s => s.name === src.name);
+        if (i >= 0) PROGS[i] = src; else PROGS.push(src);
+        progAdded++; continue;
+      }
+      const i = SOURCES.findIndex(s => s.name === src.name);
+      if (i >= 0) SOURCES[i] = src; else SOURCES.push(src);
+      added++;
+    } catch (e) { errs.push(e.message); }
+  }
+  if (progAdded) buildCourses();
+  if (added) {
+    try { mergeSources(); }
+    catch (e) { SOURCES.length = 0; backup.forEach(s => SOURCES.push(s)); errs.push(e.message); added = 0; if (SOURCES.length) { try { mergeSources(); } catch (_) {} } }
+  } else if (progAdded) linkProgs();
+  showErr(errs);
+  if (!added) {
+    if (progAdded) { if ($("#app").hidden) renderProgInfo(); else { renderStatic(); agentCatalogChanged(); } }
+    return;
+  }
+  if ($("#app").hidden) startApp(); else { sanitizeFilters(); renderStatic(); runSearch(); agentCatalogChanged(); }
+}
+function renderProgInfo() {
+  const el = $("#progInfo"); if (!el) return;
+  el.hidden = !COURSES.length;
+  if (COURSES.length) el.textContent = `Bibliografías cargadas: ${PSTAT.courses} asignaturas y ${PSTAT.entries} títulos (${PSTAT.oblig} obligatorios). Ahora carga el catálogo (CSV de Koha) para cruzarlas.`;
+}
+function removeProg(i) {
+  PROGS.splice(i, 1); buildCourses(); linkProgs();
+  if ($("#app").hidden) renderProgInfo(); else { renderStatic(); agentCatalogChanged(); }
+}
+function downloadTemplate() {
+  const q = v => '"' + v + '"';
+  const lines = [
+    "Código asignatura;Asignatura;Carrera;Semestre;Contenidos;Tipo de bibliografía;Título;Autor;Año;ISBN;Edición;Editorial",
+    ["EJEMPLO-101", "Asignatura de ejemplo", "Carrera de ejemplo", "3", q("Unidad 1: Tema de ejemplo | Unidad 2: Otro tema de ejemplo"), "Obligatoria", "Título de ejemplo", "Apellido, Nombre", "2010", "", "2a", "Editorial de ejemplo"].join(";"),
+    ["EJEMPLO-101", "Asignatura de ejemplo", "Carrera de ejemplo", "3", q("Unidad 1: Tema de ejemplo | Unidad 2: Otro tema de ejemplo"), "Complementaria", "Otro título de ejemplo", "Apellido, Nombre", "2015", "", "", ""].join(";")
+  ];
+  download("plantilla_bibliografia_programas.csv", "text/csv;charset=utf-8", "﻿" + lines.join("\r\n"));
+}
+function sanitizeFilters() {
+  for (const l of [...F.libs]) if (!DATA.libStats.has(l)) F.libs.delete(l);
+  const colls = allColls();
+  if (F.coll && !colls.includes(F.coll)) F.coll = "";
+}
+const allColls = () => [...new Set(DATA.records.flatMap(r => r.collections))].sort();
+function goLoader() {
+  DATA = null; SOURCES.length = 0; linkProgs(); renderProgInfo();
+  $("#loader").hidden = false; $("#app").hidden = true; $("#topActions").hidden = true;
+  $("#subtitle").textContent = "Carga el informe de tu colección (CSV) para comenzar";
+  $("#file").value = "";
+}
+function removeSource(i) {
+  SOURCES.splice(i, 1);
+  if (!SOURCES.length) { goLoader(); return; }
+  mergeSources(); sanitizeFilters(); renderStatic(); runSearch(); agentCatalogChanged();
+}
+function renderStatic() {
+  $("#subtitle").textContent = SOURCES.map(s => s.name).join(" + ");
+  const typesN = new Set(DATA.records.map(r => r.type).filter(Boolean)).size;
+  const multi = DATA.libStats.size > 1;
+  $("#summary").innerHTML = `<span><b>${fmt(DATA.records.length)}</b> registros</span>`
+    + (DATA.copiesUnknown ? `<span><b>${fmt(DATA.totalAvail)}</b> ejemplares disponibles</span>` : `<span><b>${fmt(DATA.totalCopies)}</b> ejemplares</span>` + (DATA.hasStatus ? `<span><b>${fmt(DATA.totalAvail)}</b> en estantería</span>` : ""))
+    + (DATA.yMin ? `<span>Años <b>${DATA.yMin}–${DATA.yMax}</b></span>` : "")
+    + (multi ? `<span>${[...DATA.libStats.entries()].map(([l, s]) => `<b>${esc(l)}</b> ${fmt(s.records)}`).join(" · ")}</span><span><b>${fmt(DATA.shared)}</b> títulos en más de una biblioteca</span>` : "")
+    + (AUTO_INFO ? `<span>Datos actualizados: <b>${esc(AUTO_INFO)}</b></span>` : "")
+    + (COURSES.length ? `<span><b>${fmt(PSTAT.courses)}</b> asignaturas con bibliografía · <b>${fmt(PSTAT.matched)}</b> de ${fmt(PSTAT.entries)} títulos están en el catálogo</span>` : "")
+    + (DATA.hasSubjects ? "" : `<span>Sin descriptores: la búsqueda temática usa título, autor y clasificación</span>`)
+    + (typesN > 1 ? `<span><b>${typesN}</b> tipos de recurso</span>` : "");
+  $("#colsList").innerHTML = SOURCES.map(s => {
+    const found = Object.keys(FIELD_NAME).filter(f => s.map[f] != null).map(f => `${FIELD_NAME[f]} ← «${esc(s.hdr[s.map[f]])}»`);
+    const miss = Object.keys(FIELD_NAME).filter(f => s.map[f] == null).map(f => FIELD_NAME[f]);
+    return `<li><b>${esc(s.name)}</b>: ${found.join("; ")}.${miss.length ? " <i>No encontradas: " + miss.join(", ") + ".</i>" : ""}</li>`;
+  }).join("") + PROGS.map(s => {
+    const found = Object.keys(PFIELD).filter(f => s.map[f] != null).map(f => `${PFIELD[f]} ← «${esc(s.hdr[s.map[f]])}»`);
+    return `<li><b>${esc(s.name)}</b> (bibliografía de programas): ${found.join("; ")}.${s.map.cat == null ? " <i>No encontré la columna de tipo de bibliografía: todo queda «sin categoría».</i>" : ""}</li>`;
+  }).join("");
+  $("#srcStrip").innerHTML = SOURCES.map((s, i) => `<span class="src"><span>${esc(s.name)} · ${fmt(s.nRecs)} reg.</span>`
+    + (s.hasLib ? "" : `<input class="libname" data-src="${i}" value="${esc(s.label)}" aria-label="Nombre de la biblioteca para ${esc(s.name)}" title="Nombre de la biblioteca de este archivo">`)
+    + `<button type="button" class="x" data-rm="${i}" aria-label="Quitar ${esc(s.name)}" title="Quitar este archivo">×</button></span>`).join("")
+    + PROGS.map((s, i) => `<span class="src prog"><span>Bibliografía: ${esc(s.name)} · ${fmt(s.entries.length)} títulos</span><button type="button" class="x" data-rmp="${i}" aria-label="Quitar ${esc(s.name)}" title="Quitar este archivo">×</button></span>`).join("")
+    + `<button type="button" class="btn" id="btnAddSrc">+ Agregar archivo</button>`;
+  renderProgReport();
+  $("#gAvail").hidden = !DATA.hasStatus;
+  const colls = allColls();
+  $("#gColl").hidden = colls.length < 2;
+  $("#fColl").innerHTML = `<option value="">Todas</option>` + colls.map(c => `<option ${c === F.coll ? "selected" : ""}>${esc(c)}</option>`).join("");
+  $("#gYear").hidden = !DATA.yMin;
+}
+function startApp() {
+  $("#loader").hidden = true; $("#app").hidden = false; $("#topActions").hidden = false;
+  Object.assign(F, { dewey: new Set(), types: new Set(), libs: new Set(), langs: new Set(), coll: "", avail: false, yFrom: "", yTo: "", sort: "rel" });
+  $("#fAvail").checked = false; $("#yFrom").value = ""; $("#yTo").value = ""; $("#sort").value = "rel"; $("#q").value = "";
+  $("#fDewey").dataset.all = "0";
+  $("#filtersBox").open = window.innerWidth >= 860;
+  agentStart();
+  renderStatic();
+  switchTab("search");
+  runSearch();
+}
+function switchTab(which) {
+  const s = which === "search";
+  $("#paneSearch").hidden = !s; $("#paneAsk").hidden = s;
+  $("#tabSearch").setAttribute("aria-selected", s); $("#tabAsk").setAttribute("aria-selected", !s);
+}
+function ask(text) {
+  text = text.trim(); if (!text) return;
+  addMsg("user", esc(text));
+  let html;
+  try { html = agentRespond(text); renderProfile(); } catch (e) { html = "<p>Ocurrió un error al buscar: " + esc(e.message) + "</p>"; }
+  const typing = document.createElement("div");
+  typing.className = "msg bot typing"; typing.setAttribute("aria-label", "El asistente está escribiendo"); typing.innerHTML = "<span></span><span></span><span></span>";
+  $("#chat").appendChild(typing); typing.scrollIntoView({ block: "nearest" });
+  setTimeout(() => { typing.remove(); addMsg("bot", html); }, 450);
+}
+
+/* ============ Eventos ============ */
+const pickFiles = () => $("#file").click();
+$("#btnPick").onclick = pickFiles;
+$("#btnAdd").onclick = pickFiles;
+$("#file").onchange = e => { const fs = [...e.target.files]; e.target.value = ""; if (fs.length) addFiles(fs); };
+const dz = $("#loader");
+["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("drag"); }));
+["dragleave", "drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("drag"); }));
+dz.addEventListener("drop", e => { const fs = [...e.dataTransfer.files]; if (fs.length) addFiles(fs); });
+$("#app").addEventListener("dragover", e => e.preventDefault());
+$("#app").addEventListener("drop", e => { e.preventDefault(); const fs = [...e.dataTransfer.files]; if (fs.length) addFiles(fs); });
+$("#tabSearch").onclick = () => switchTab("search");
+$("#tabAsk").onclick = () => { switchTab("ask"); $("#askInput").focus(); };
+$("#searchForm").onsubmit = e => { e.preventDefault(); runSearch(); };
+let deb; $("#q").addEventListener("input", () => { clearTimeout(deb); deb = setTimeout(runSearch, 200); });
+$("#askForm").onsubmit = e => { e.preventDefault(); const v = $("#askInput").value; $("#askInput").value = ""; ask(v); };
+$("#btnMore").onclick = () => { CUR.shown += 25; renderResults(); };
+$("#btnCsv").onclick = exportCsv;
+$("#btnJson").onclick = exportJson;
+$("#xlang").onchange = e => { XL.on = e.target.checked; runSearch(); };
+function applyFilters() {
+  renderFacets(CUR.baseRows);
+  const rows = CUR.baseRows.filter(x => passes(x.r));
+  CUR.rows = F.sort === "rel" ? rows.sort((a, b) => b.s - a.s) : sortRows(rows);
+  CUR.shown = 25; renderResults();
+}
+$("#sort").onchange = e => { F.sort = e.target.value; applyFilters(); };
+$("#fAvail").onchange = e => { F.avail = e.target.checked; applyFilters(); };
+$("#fColl").onchange = e => { F.coll = e.target.value; applyFilters(); };
+$("#yFrom").onchange = e => { F.yFrom = e.target.value; applyFilters(); };
+$("#yTo").onchange = e => { F.yTo = e.target.value; applyFilters(); };
+$("#btnClear").onclick = () => { Object.assign(F, { dewey: new Set(), types: new Set(), libs: new Set(), langs: new Set(), coll: "", avail: false, yFrom: "", yTo: "" }); $("#fAvail").checked = false; $("#fColl").value = ""; $("#yFrom").value = ""; $("#yTo").value = ""; applyFilters(); };
+$("#filtersBox").addEventListener("change", e => {
+  const t = e.target; if (!t.dataset.f) return;
+  const set = F[t.dataset.f]; t.checked ? set.add(t.value) : set.delete(t.value); applyFilters();
+});
+$("#filtersBox").addEventListener("click", e => { if (e.target.id === "dToggle") { const d = $("#fDewey"); d.dataset.all = d.dataset.all === "1" ? "0" : "1"; renderFacets(CUR.baseRows); } });
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.classList && t.classList.contains("libname")) {
+    const s = SOURCES[+t.dataset.src]; if (!s) return;
+    s.label = t.value.trim() || s.name.replace(/\.[^.]+$/, "");
+    F.libs.clear(); mergeSources(); renderStatic(); runSearch(); agentCatalogChanged();
+  }
+});
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.copy) { const v = t.dataset.copy; (navigator.clipboard ? navigator.clipboard.writeText(v) : Promise.reject()).catch(() => { const i = document.createElement("input"); i.value = v; document.body.appendChild(i); i.select(); document.execCommand("copy"); i.remove(); }); const o = t.textContent; t.textContent = "Copiada ✓"; setTimeout(() => t.textContent = o, 1200); }
+  else if (t.dataset.rm != null) removeSource(+t.dataset.rm);
+  else if (t.dataset.rmp != null) removeProg(+t.dataset.rmp);
+  else if (t.dataset.tpl) downloadTemplate();
+  else if (t.dataset.prep) exportProgReport();
+  else if (t.id === "btnAddSrc") pickFiles();
+  else if (t.dataset.subject) { switchTab("search"); $("#q").value = t.dataset.subject; runSearch(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  else if (t.dataset.concept) { switchTab("search"); $("#q").value = t.dataset.concept; runSearch(); }
+  else if (t.dataset.pf) toggleProfile(t.dataset.pf);
+  else if (t.dataset.ask) { ask(t.dataset.ask); }
+  else if (t.dataset.open != null) { switchTab("search"); $("#q").value = t.dataset.open; runSearch(); }
+});
+/* ============ Carga automática desde la carpeta datos/ (cuando el HTML está publicado en un sitio web) ============ */
+(async function autoLoad() {
+  if (!/^https?:$/.test(location.protocol)) return;
+  try {
+    const mr = await fetch("datos/manifest.json", { cache: "no-cache" });
+    if (!mr.ok) return;
+    const man = await mr.json();
+    const names = (Array.isArray(man.archivos) ? man.archivos : []).filter(x => typeof x === "string" && x && !/[\\/]|\.\./.test(x));
+    if (!names.length) return;
+    const files = [];
+    for (const nm of names) {
+      const r = await fetch("datos/" + encodeURIComponent(nm), { cache: "no-cache" });
+      if (!r.ok) throw new Error("no pude leer datos/" + nm);
+      files.push(new File([await r.blob()], nm));
+    }
+    AUTO_INFO = typeof man.actualizado === "string" ? man.actualizado.slice(0, 40) : "";
+    await addFiles(files);
+  } catch (e) { showErr(["Carga automática: " + e.message + ". Puedes cargar los archivos a mano."]); }
+})();
+</script>
+</body>
+</html>
